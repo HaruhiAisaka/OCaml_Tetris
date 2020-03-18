@@ -1,0 +1,10 @@
+#require "oUnit";;
+#require "yojson";;
+#require "ANSITerminal";;
+#require "_build";;
+(* Write the object/modules you want to load below *)
+
+(* TODO configure this (see adventure) *)
+(*
+#load "???.cmo";;
+*)
