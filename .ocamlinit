@@ -2,7 +2,7 @@
 #require "yojson";;
 #require "sdl2";;
 #require "ANSITerminal";;
-#require "_build";;
+#directory "_build";;
 (* Write the object/modules you want to load below *)
 
 (* TODO configure this (see adventure) *)

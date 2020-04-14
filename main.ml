@@ -2,6 +2,8 @@ open Sdlevent
 open Sdl
 
 (* An example from https://github.com/fccm/OCamlSDL2/tree/master/examples *)
+
+(* Map Keyboard action to Quiting Screen *)
 let proc_events = function
   | KeyDown { keycode = Keycode.Q }
   | KeyDown { keycode = Keycode.Escape }
@@ -12,6 +14,7 @@ let proc_events = function
   | e -> ()
 
 
+(* Make window with surface *)
 let () =
   let width, height = (640, 480) in
   Sdl.init [`VIDEO; `JOYSTICK];
