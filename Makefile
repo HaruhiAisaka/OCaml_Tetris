@@ -1,4 +1,4 @@
-MODULES=main # TODO fill this in
+MODULES=main graph# TODO fill this in
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)

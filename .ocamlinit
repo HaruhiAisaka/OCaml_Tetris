@@ -1,4 +1,5 @@
 #require "oUnit";;
+#require "graphics";;
 #require "yojson";;
 #require "sdl2";;
 #require "ANSITerminal";;
