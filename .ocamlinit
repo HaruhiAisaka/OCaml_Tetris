@@ -1,7 +1,7 @@
 #require "oUnit";;
 #require "graphics";;
 #require "yojson";;
-#require "sdl2";;
+#require "graphics";;
 #require "ANSITerminal";;
 #directory "_build";;
 (* Write the object/modules you want to load below *)

@@ -1,75 +1,54 @@
-open Sdlevent
-open Sdl
+open Graphics;;
 
-(* An example from https://github.com/fccm/OCamlSDL2/tree/master/examples *)
+Graphics.open_graph " 400x800";;
 
-(* Map Keyboard action to Quiting Screen *)
-let proc_events = function
-  | KeyDown { keycode = Keycode.Q }
-  | KeyDown { keycode = Keycode.Escape }
-  | KeyDown { scancode = Scancode.ESCAPE }
-  | Quit _ ->
-      Sdl.quit ();
-      exit 0
-  | e -> ()
+let box_width=40;;
 
 
-(* Make window with surface *)
-let () =
-  let width, height = (640, 480) in
-  Sdl.init [`VIDEO; `JOYSTICK];
-  at_exit print_newline;
-  let window =
-    Window.create
-      ~pos:(`centered, `centered)
-      ~dims:(width, height)
-      ~title:"SDL2 Sprite Surface"
-      ~flags:[Window.Resizable]
-  in
-  let screen = Window.get_surface window in
-  let filename = "assets/test.bmp" in
-  let surf = Surface.load_bmp ~filename in
+let draw_block unit=
+  set_color Graphics.blue;
+  let x = Graphics.size_x () in
+  let y = Graphics.size_y () in
+  Graphics.fill_rect (4*box_width) (y-box_width) box_width box_width;
+  moveto (4*box_width) (y-box_width);;
 
-  let screen_rect = Rect.make4 0 0 width height in
-  let src_rect = Rect.make4 0 0 width height in
-  let dst_rect = Rect.make4 100 100 64 64 in
-  let render t dt =
-    Surface.fill_rect
-      ~dst:screen ~rect:screen_rect
-      ~color:0x000000l;
-    let x = (t / 10) mod width in
-    let dst_rect = { dst_rect with Rect.x } in
-    let _ =
-      Surface.blit_surface
-        ~src:surf ~dst:screen
-        ~src_rect ~dst_rect
-    in
-    Window.update_surface window;
-  in
-
-  let joy_num = Joystick.num_joysticks () in
-  for i = 0 to pred joy_num do
-    ignore(Joystick.j_open i)
-  done;
-
-  let rec event_loop () =
-    match Event.poll_event () with
-    | None -> ()
-    | Some ev ->
-        proc_events ev;
-        event_loop ()
-  in
-  let rec main_loop last_t =
-    event_loop ();
-    let t = Timer.get_ticks () in
-    let dt = t - last_t in
-    render t dt;
-    (*
-    Timer.delay (max 0 (40 - dt));
-    *)
-    main_loop t
-  in
-  main_loop (Timer.get_ticks ())
+let drop unit = let (x,y) = current_point () in
+  set_color Graphics.white;
+  fill_rect x y box_width box_width;
+  set_color Graphics.blue;
+  moveto x (y-box_width);
+  fill_rect x (y-box_width) box_width box_width;;
 
 
-let main () = ()
+let right unit = let (x,y) = current_point () in
+  if x =(400-box_width) then () else(
+    set_color Graphics.white;
+    fill_rect x y box_width box_width;
+    set_color Graphics.blue;
+    moveto (x+box_width) y;
+    fill_rect (x+box_width) y box_width box_width);;
+
+
+let left unit = let (x,y) = current_point () in
+  if x =0 then () else(
+    set_color Graphics.white;
+    fill_rect x y box_width box_width;
+    set_color Graphics.blue;
+    moveto (x-box_width) y;
+    fill_rect (x-box_width) y box_width box_width);;
+
+let rec move placed = let (x,y) = current_point() in
+  match (x,y) with
+  |(x,0)->draw_block();move ((x,0)::placed);
+  |_-> if (List.mem (x,y-box_width) placed )then (draw_block(); move ((x,y)::placed);)
+    else(
+      match (wait_next_event [Key_pressed]).key with
+      |'a'-> if (List.mem (x-box_width,y) placed) then () else left();move placed;
+      |'s'-> drop();move placed;
+      |'d'-> if (List.mem (x+box_width,y) placed) then () else right();move placed;
+      |'0'-> ();
+      |_->move placed);;
+
+
+draw_block();;
+move [];;
