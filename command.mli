@@ -8,4 +8,4 @@ type command=
   |None
 
 (**[get_command()] is the command that will be executed based on user input *)
-val get_command : unit -> command
+val get_command : float -> float -> command

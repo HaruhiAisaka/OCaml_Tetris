@@ -9,12 +9,15 @@ type command=
   | None
 
 
-let get_command unit =
-  let status=wait_next_event [Key_pressed] in
-  match status.key with
-  |'a'-> Left
-  |'s'-> Down
-  |'d'-> Right
-  |'0'-> Pause
-  |_-> None
-
+let get_command last_drop time_between_drops =
+  let current=Unix.gettimeofday() in
+  if (current-.last_drop) <time_between_drops then
+    if key_pressed() then 
+      match read_key() with
+      |'a'-> Left
+      |'s'-> Down
+      |'d'-> Right
+      |'0'-> Pause
+      |_-> None
+    else None
+  else Fall current
