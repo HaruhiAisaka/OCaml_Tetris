@@ -4,9 +4,6 @@
 #require "graphics";;
 #require "ANSITerminal";;
 #directory "_build";;
-(* Write the object/modules you want to load below *)
 
-(* TODO configure this (see adventure) *)
-(*
-#load "???.cmo";;
-*)
+#load "command.cmo";;
+#load "gameState.cmo";;

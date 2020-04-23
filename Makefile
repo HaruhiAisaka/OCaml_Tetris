@@ -1,4 +1,4 @@
-MODULES=main command# TODO fill this in
+MODULES=main gameState command
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
