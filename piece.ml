@@ -11,63 +11,69 @@ type piece_name =
 
 type t = (piece_name*Block.t list)
 
+type rotation = 
+  | Zero
+  | One
+  | Two 
+  | Three
+
 (* -----------------------Helper Functions for Create------------------------ *)
 
 (**[create_I xy] is an I piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_I xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x-1,y);
-  Block.create (x-2,y);
-  Block.create (x+1,y);]
+   Block.create (x-1,y);
+   Block.create (x-2,y);
+   Block.create (x+1,y);]
 
 (**[create_O xy] is an O piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_O xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x+1,y);
-  Block.create (x,y+1);
-  Block.create (x+1,y+1);]
+   Block.create (x+1,y);
+   Block.create (x,y+1);
+   Block.create (x+1,y+1);]
 
 (**[create_L xy] is an L piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_L xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x+1,y);
-  Block.create (x-1,y-1);
-  Block.create (x-1,y);]
+   Block.create (x+1,y);
+   Block.create (x-1,y-1);
+   Block.create (x-1,y);]
 
 (**[create_J xy] is an J piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_J xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x-1,y);
-  Block.create (x-1,y+1);
-  Block.create (x+1,y);]
+   Block.create (x-1,y);
+   Block.create (x-1,y+1);
+   Block.create (x+1,y);]
 
 (**[create_S xy] is an S piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_S xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x,y+1);
-  Block.create (x+1,y+1);
-  Block.create (x-1,y);]
+   Block.create (x,y+1);
+   Block.create (x+1,y+1);
+   Block.create (x-1,y);]
 
 (**[create_Z xy] is an Z piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_Z xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x,y+1);
-  Block.create (x-1,y+1);
-  Block.create (x+1,y);]
+   Block.create (x,y+1);
+   Block.create (x-1,y+1);
+   Block.create (x+1,y);]
 
 (**[create_T xy] is an T piece with the pivot at cordinate xy
-  Requires: [xy] be a tuple of non-negative ints.*)
+   Requires: [xy] be a tuple of non-negative ints.*)
 let create_T xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-  Block.create (x+1,y);
-  Block.create (x-1,y);
-  Block.create (x,y+1);]
+   Block.create (x+1,y);
+   Block.create (x-1,y);
+   Block.create (x,y+1);]
 
 (* ------------------------------------------------------------------------- *)
 
@@ -90,8 +96,8 @@ let tuple_arithmatic f (tuple1:('a*'a)) (tuple2:('a*'a)) : ('a*'a) =
 
 let tuple_rotation_90 (left:bool) (tuple:(float*float)) : (float*float)  =
   let (x,y) = tuple in
-    if (left) then (-.y,x)
-    else (y,-.x)
+  if (left) then (-.y,x)
+  else (y,-.x)
 
 let piece_list_of_tuples (piece:t) : (float*float) list =
   let (piece_name,blocks) = piece in
@@ -114,8 +120,8 @@ let create xy piece =
 let left piece = 
   match piece with
   | (I xy, y) -> (I (tuple_arithmatic (+) (-1,0) xy), List.map(Block.left) y)
-  | (x,y) -> (x, List.map(Block.right) y)
-  
+  | (x,y) -> (x, List.map(Block.left) y)
+
 
 let right piece = 
   match piece with
@@ -125,7 +131,7 @@ let right piece =
 let down piece =
   match piece with
   | (I xy, y) -> (I (tuple_arithmatic (+) (0,-1) xy), List.map(Block.left) y)
-  | (x,y) -> (x, List.map(Block.right) y)
+  | (x,y) -> (x, List.map(Block.down) y)
 
 let to_blocks piece = snd piece
 
@@ -133,51 +139,52 @@ let to_blocks piece = snd piece
 let rotate_left piece =
   let (piece_name,blocks) = piece in
   let centered_tuples = List.map (Block.to_tuple) blocks
-    |> List.map (tuple_int_to_float)
-    |> List.map (tuple_arithmatic (+.) (0.5,0.5))
+                        |> List.map (tuple_int_to_float)
+                        |> List.map (tuple_arithmatic (+.) (0.5,0.5))
   in
   match piece_name with
   | O -> piece
   | I xy -> 
     let origin = tuple_int_to_float xy in
     let new_blocks = 
-    List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
-    |> List.map (tuple_rotation_90 true)
-    |> List.map (tuple_arithmatic (+.) origin)
-    |> List.map (tuple_float_to_block_cordinate)
-    |> List.map (Block.create) in
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+      |> List.map (tuple_rotation_90 true)
+      |> List.map (tuple_arithmatic (+.) origin)
+      |> List.map (tuple_float_to_block_cordinate)
+      |> List.map (Block.create) in
     (I xy, new_blocks)
   | piece_name -> let origin = List.hd centered_tuples in
     let new_blocks = 
-    List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
-    |> List.map (tuple_rotation_90 true)
-    |> List.map (tuple_arithmatic (+.) origin)
-    |> List.map (tuple_float_to_block_cordinate)
-    |> List.map (Block.create) in
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+      |> List.map (tuple_rotation_90 true)
+      |> List.map (tuple_arithmatic (+.) origin)
+      |> List.map (tuple_float_to_block_cordinate)
+      |> List.map (Block.create) in
     (piece_name, new_blocks)
 
 let rotate_right piece =
   let (piece_name,blocks) = piece in
   let centered_tuples = List.map (Block.to_tuple) blocks
-    |> List.map (tuple_int_to_float)
-    |> List.map (tuple_arithmatic (+.) (0.5,0.5))
+                        |> List.map (tuple_int_to_float)
+                        |> List.map (tuple_arithmatic (+.) (0.5,0.5))
   in
   match piece_name with
   | O -> piece
   | I xy -> 
     let origin = tuple_int_to_float xy  in
     let new_blocks = 
-    List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
-    |> List.map (tuple_rotation_90 false)
-    |> List.map (tuple_arithmatic (+.) origin)
-    |> List.map (tuple_float_to_block_cordinate)
-    |> List.map (Block.create) in
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+      |> List.map (tuple_rotation_90 false)
+      |> List.map (tuple_arithmatic (+.) origin)
+      |> List.map (tuple_float_to_block_cordinate)
+      |> List.map (Block.create) in
     (I xy, new_blocks)
   | piece_name -> let origin = List.hd centered_tuples in
     let new_blocks = 
-    List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
-    |> List.map (tuple_rotation_90 false)
-    |> List.map (tuple_arithmatic (+.) origin)
-    |> List.map (tuple_float_to_block_cordinate)
-    |> List.map (Block.create) in
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+      |> List.map (tuple_rotation_90 false)
+      |> List.map (tuple_arithmatic (+.) origin)
+      |> List.map (tuple_float_to_block_cordinate)
+      |> List.map (Block.create) in
     (piece_name, new_blocks)
+
