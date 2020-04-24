@@ -15,8 +15,8 @@ the x axis and y axis. The int's can not be negative.*)
 type t
 
 (** [create xy] is the initial state of the block given two int cordinates.
-  Requires: [xy] be a tuple of ints whose ints are non-negative.*)
-val create : (int*int) -> t
+  Requires: [xy] be a tuple of non-negative ints.*)
+val create : (int*int)-> t
 
 (** [left block] is the block moved one square to the left. *)
 val left : t -> t
@@ -26,3 +26,7 @@ val right : t -> t
 
 (** [down block] is the block moved one square down. *)
 val down : t -> t
+
+(**[to_tuple block] is the cordinates of the block 
+represented as a list of tuples*)
+val to_tuple : t -> (int*int) 
