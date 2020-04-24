@@ -9,10 +9,10 @@ open Block
   this module.
 *)
 
-(** The type [piece_name] represents the names of all seven possible 
+(** The type [piece_name] represents the names of all seven possible
 tetris blocks.*)
-type piece_name = 
- | I
+type piece_name =
+ | I of (int * int)
  | O
  | L
  | J
@@ -20,15 +20,15 @@ type piece_name =
  | Z
  | T
 
-(** The type [rotation] represents the rotation of the piece. 
+(** The type [rotation] represents the rotation of the piece.
 Rotation is an int from 0 to 3 *)
-type rotation
+(* type rotation*)
 
 (**The asbtract type of values representing a piece.
-The first element is the piece name of the given piece. 
+The first element is the piece name of the given piece.
 This value needs to be stored in order for the piece to properly rotate.
 A piece is a tuple with the second element being a list of 4
-blocks with the "pivot" piece as the first value in the list. 
+blocks with the "pivot" piece as the first value in the list.
 *)
 type t
 

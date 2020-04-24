@@ -1,4 +1,4 @@
-MODULES=main gameState command
+MODULES=main gameState block piece  command
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)

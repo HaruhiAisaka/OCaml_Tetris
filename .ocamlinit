@@ -7,3 +7,5 @@
 
 #load "command.cmo";;
 #load "gameState.cmo";;
+#load "piece.cmo";;
+#load "block.cmo";;

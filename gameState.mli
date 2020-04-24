@@ -1,6 +1,6 @@
 open Command
-(* open Block *) type block = Block
-(* open Piece *) type piece = Piece
+open Block
+open Piece
 
 (**
  * The game state represents the abstract state of the entire game.
@@ -10,7 +10,7 @@ open Command
 type t
 
 (** The initialized game state *)
-val init : t
+val init : int * int -> t
 
 
 (* ---- Processing ----- *)
@@ -35,7 +35,7 @@ val paused : t -> bool
 
 (** [next_piece state] is the next piece to be dropped once the current one has
     been placed by the player *)
-val next_piece : t -> piece
+val next_piece : t -> Piece.t
 (* NOTE might end up nmoving this to another module, depends if we want game
  * state to be dictatin this *)
 
@@ -52,8 +52,8 @@ val block_speed : t -> float
 (* ---- Information ----- *)
 
 (** [current_piece state] is the current piece being dropped by the player *)
-val current_piece : t -> piece option
+val current_piece : t -> Piece.t option
 
 (** [blocks state] is a list of the blocks in the board  *)
-val blocks: t -> _ list
+val blocks: t -> Block.t list
 
