@@ -1,4 +1,5 @@
 open Block
+open Graphics
 
 (**
    Representation of a piece in tetris.
@@ -53,3 +54,6 @@ val rotate_right : t -> t
 
 (** [rotate_left piece] is the piece rotated to the left.*)
 val rotate_left : t -> t
+
+(** [piece_color piece] is the color of the piece *)
+val piece_color: t-> Graphics.color

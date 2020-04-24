@@ -1,5 +1,5 @@
 open Block
-
+open Graphics
 type piece_name = 
   | I of (int*int)
   | O
@@ -125,12 +125,12 @@ let left piece =
 
 let right piece = 
   match piece with
-  | (I xy, y) -> (I (tuple_arithmatic (+) (1,0) xy), List.map(Block.left) y)
+  | (I xy, y) -> (I (tuple_arithmatic (+) (1,0) xy), List.map(Block.right) y)
   | (x,y) -> (x, List.map(Block.right) y)
 
 let down piece =
   match piece with
-  | (I xy, y) -> (I (tuple_arithmatic (+) (0,-1) xy), List.map(Block.left) y)
+  | (I xy, y) -> (I (tuple_arithmatic (+) (0,-1) xy), List.map(Block.down) y)
   | (x,y) -> (x, List.map(Block.down) y)
 
 let to_blocks piece = snd piece
@@ -188,3 +188,11 @@ let rotate_right piece =
       |> List.map (Block.create) in
     (piece_name, new_blocks)
 
+let piece_color piece =match fst (piece:t) with
+  |I (x,y) -> red
+  |O -> blue
+  |L -> green
+  |J -> yellow
+  |S -> black
+  |Z -> magenta
+  |T -> cyan

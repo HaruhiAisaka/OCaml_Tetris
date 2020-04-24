@@ -2,6 +2,8 @@ open Graphics;;
 open Command;;
 open Block;;
 open Piece;;
+open Randompiece;;
+
 Graphics.open_graph " 400x800";;
 
 let box_width=40
@@ -31,23 +33,27 @@ let landed piece placed =
     |(x,y)::t-> List.mem (x,y-1) placed || landed_helper t placed
   in landed_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) placed
 
-let move_piece piece dir=
+let move_piece piece dir color=
   draw_piece white piece;
-  draw_piece red (dir piece)
+  draw_piece color (dir piece)
+
+
+
 
 let move (last_drop:float) placed= 
   let rec update last_drop placed (current_piece:Piece.t) new_piece = 
-    if new_piece then (draw_piece Graphics.red current_piece;update last_drop placed (create (4,18) L) false) else 
+    if new_piece then let new_piece = random_piece() in (update last_drop placed (create (4,18) new_piece) false) else 
     if landed current_piece placed then 
       update last_drop (List.append placed (current_piece |> to_blocks |> (List.map (fun block-> to_tuple block)))) current_piece true
-    else match get_command last_drop time_between_drops with
-      |Left -> if collision (Piece.left current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece Piece.left;update last_drop placed (Piece.left current_piece) false)
-      |Down -> move_piece current_piece down; update last_drop placed (down current_piece) false
-      |Right -> if collision (Piece.right current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece Piece.right;update last_drop placed (Piece.right current_piece) false)
+    else let new_color = piece_color current_piece in
+      match get_command last_drop time_between_drops with
+      |Left -> if collision (Piece.left current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece left new_color;update last_drop placed (Piece.left current_piece) false)
+      |Down -> move_piece current_piece down new_color; update last_drop placed (down current_piece) false
+      |Right -> if collision (Piece.right current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece right new_color;update last_drop placed (Piece.right current_piece) false)
       |Pause -> ()
-      |Fall new_time -> move_piece current_piece down; update new_time placed (down current_piece) false
-      |Rotate_Right->if collision (rotate_right current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece rotate_right;update last_drop placed (rotate_right current_piece) false)
-      |Rotate_Left->if collision (rotate_left current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece rotate_left;update last_drop placed (rotate_left current_piece) false)
+      |Fall new_time -> move_piece current_piece down new_color; update new_time placed (down current_piece) false
+      |Rotate_Right->if collision (rotate_right current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece rotate_right new_color;update last_drop placed (rotate_right current_piece) false)
+      |Rotate_Left->if collision (rotate_left current_piece) placed then update last_drop placed current_piece false else (move_piece current_piece rotate_left new_color;update last_drop placed (rotate_left current_piece) false)
       |None ->update last_drop placed current_piece false in
   update last_drop placed (create (4,18) L) true;;
 

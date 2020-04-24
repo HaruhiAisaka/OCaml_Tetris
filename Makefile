@@ -1,4 +1,4 @@
-MODULES=main gameState command block piece
+MODULES=main gameState command block piece randompiece
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
