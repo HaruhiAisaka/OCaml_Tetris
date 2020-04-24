@@ -1,4 +1,6 @@
 open Command
+(* open Block *) type block = Block
+(* open Piece *) type piece = Piece
 
 (**
  * The game state represents the abstract state of the entire game.
@@ -13,9 +15,9 @@ val init : t
 
 (* ---- Processing ----- *)
 
-(** [process deltatime control state] is the updated state of the game based on
-    [deltatime] passed and [command] pressed. *)
-val process : float -> command -> t -> t
+(** [process last_time deltatime control state] is the updated state of the game
+    based on [last_time], [deltatime] passed and [command] pressed. *)
+val process : float -> float -> command -> t -> t
 
 
 (* ---- Rules + Game State of Tetris ---- *)
@@ -33,7 +35,7 @@ val paused : t -> bool
 
 (** [next_piece state] is the next piece to be dropped once the current one has
     been placed by the player *)
-val next_piece : t -> _
+val next_piece : t -> piece
 (* NOTE might end up nmoving this to another module, depends if we want game
  * state to be dictatin this *)
 
@@ -50,7 +52,7 @@ val block_speed : t -> float
 (* ---- Information ----- *)
 
 (** [current_piece state] is the current piece being dropped by the player *)
-val current_piece : t -> _
+val current_piece : t -> piece option
 
 (** [blocks state] is a list of the blocks in the board  *)
 val blocks: t -> _ list
