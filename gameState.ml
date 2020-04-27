@@ -186,7 +186,7 @@ let landed game piece  =
 
 (* ---- Interface ----- *)
 
-let init dimensions =
+let init dimensions standard =
   let (w, h) = dimensions in
   let spawn = w / 2, h - 1 in
   let spawn_piece = (Piece.create spawn (Randompiece.random_piece ())) in
@@ -204,7 +204,7 @@ let init dimensions =
   rows_cleared = 0;
   paused = false;
   level = 1;
-  standard_rules = true;
+  standard_rules = standard;
 }
 
 (* Moving Piece *)

@@ -10,7 +10,7 @@ open Piece
 type t
 
 (** The initialized game state *)
-val init : int * int -> t
+val init : int * int -> bool -> t
 
 
 (* ---- Processing ----- *)

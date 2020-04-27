@@ -8,7 +8,7 @@ open Randompiece
 let screen_size = (400, 800)
 
 let _ = Graphics.open_graph " 400x800"
-let _ = Graphics.auto_synchronize true
+let _ = Graphics.auto_synchronize false
 
 (** [box_width] is the length of a 1 x 1 block in pixels*)
 let box_width=40
@@ -37,7 +37,7 @@ let draw_piece color (piece:Piece.t)=
 (** Draws [piece] if it is not [None] *)
 let draw_piece_if_exist (piece: Piece.t option) =
     match piece  with
-    | Some p -> draw_piece Graphics.red p
+    | Some p -> draw_piece (Piece.piece_color p) p
     | None -> ()
 
 (** Draws all blocks and pieces in [game] *)
@@ -45,7 +45,7 @@ let draw_game game =
     List.iter (fun b -> draw_block Graphics.blue b) (GameState.blocks game);
     draw_piece_if_exist (GameState.current_piece game)
 
-let tetris = GameState.init (10, 20)
+let tetris = GameState.init (10, 20) false
 
 let rec play tetris =
   if GameState.game_over tetris then print_endline "game over" else
@@ -54,6 +54,7 @@ let rec play tetris =
   begin
     clear_screen Graphics.white;
     draw_game game;
+    Graphics.synchronize ();
 
     play game
   end
