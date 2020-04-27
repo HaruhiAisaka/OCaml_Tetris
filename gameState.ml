@@ -3,9 +3,6 @@ open Command
 open Block
 open Piece
 
-let _ = Random.self_init ()
-
-(* ---- Representation ---- *)
 type t = {
   (* About the grid *)
   grid_width: int;
@@ -18,7 +15,7 @@ type t = {
   time: float;
   input_buffer: float; (* Time between succesive butten inputs *)
   free_fall_iterations: int; (* Number of times a block has fallen *)
-  over: bool;
+  over: bool; (* Game over *)
   points: int;
   rows_cleared: int;
   paused: bool;
@@ -29,26 +26,11 @@ type t = {
    * insta-drops the piece *)
 }
 
-let game_over game =
-  game.over
 
-let paused game =
-  game.paused
 
-let rows_cleared game =
-  game.rows_cleared
+(* ------ Helper Funcs ----- *)
 
-let points game =
-  game.points
-
-let level game =
-  game.level
-
-let block_speed game =
-  0.50 -. (0.05 *. (float_of_int game.level -. 1.0))
-
-(* ----- Helper ----- *)
-(** Range operator from Stack Overflow *)
+(** Range operator from Stack Overflow. Is i..j inclusive *)
 let (--) i j =
     let rec aux n acc =
       if n < i then acc else aux (n-1) (n :: acc)
@@ -63,7 +45,13 @@ let get_block game loc =
   in
   helper game.blocks
 
-(* ---- Internal ----- *)
+(** [block_tuples game] is a list of locations for [game.blocks] *)
+let block_tuples game : (int * int) list =
+  List.map (fun b -> Block.to_tuple b) game.blocks
+
+
+
+(* -------- Points / Level / Block Speed ----- *)
 
 (** [points_for_line number_cleared] is the amount of points the player would be rewarded
   for clearing [number_cleared] lines
@@ -90,12 +78,20 @@ let calculate_level game =
   else
     10
 
-(* ---- Blocks Representation ----- *)
+(** [block_speed game] is the speed blocks will drop based on the level *)
+let block_speed game =
+  0.50 -. (0.05 *. (float_of_int game.level -. 1.0))
 
-let block_tuples game : (int * int) list =
-  List.map (fun b -> Block.to_tuple b) game.blocks
+(** [update_level game] is the game after updating the level and changing the
+ * block speed accordingly. *)
+let update_level game =
+  { game with
+    level = calculate_level game;
+  }
 
-(* ---- Managing Board ----- *)
+
+
+(* -------- Board Collisions and Line Solving ----- *)
 
 (**[collision piece placed] is true iff a block in [piece] overlaps with a point
    in [placed] or a block is outside of the grid *)
@@ -111,6 +107,8 @@ let collision game piece =
                 collision_helper t placed
   in collision_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
 
+(** [block_collision game blocks] is true iff a block in [blocks] overlaps with
+ * a block in the game or is OOb *)
 let block_collision game (blocks: Block.t list) =
   let rec collision_helper piece_positions placed =
     match piece_positions with
@@ -135,69 +133,6 @@ let landed game piece  =
       landed_helper t placed
   in landed_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
 
-
-(* ---- Interface ----- *)
-
-let init dimensions standard =
-  let (w, h) = dimensions in
-  let spawn = w / 2, h - 1 in
-  let spawn_piece = (Piece.create spawn (Randompiece.random_piece ())) in
-  {
-  blocks = [];
-  grid_width = w;
-  grid_height = h;
-  current_piece = None;
-  next_piece = spawn_piece;
-  over = false;
-  time = 0.;
-  free_fall_iterations = 0;
-  input_buffer = 0.05;
-  points = 0;
-  rows_cleared = 0;
-  paused = false;
-  level = 1;
-  standard_rules = standard;
-}
-
-(* Moving Piece *)
-(** [move_piece game direction piece] is the [game] after moving [piece] by the
- * direction specified in [direction]. Is the same as [game] if moving the
- * [piece] would move it out of bounds or collide with existing block
- * Raises: Failure if the direction is not a movement
- * *)
-let move_piece game direction piece =
-  let move_result =
-    match direction with
-    | Left -> Piece.left piece
-    | Right -> Piece.right piece
-    | Down ->  Piece.down piece
-    | _ -> raise (Failure "GameState: direction wasn't left/right/down")
-  in
-  if not (collision game move_result) then
-    { game with current_piece = Some move_result }
-  else
-    game
-
-
-(* Rotation and checking validity *)
-(** [rotate_piece game direction] is the [game] after moving [piece] by the
- * orientation specified in [direction]. Is the same as [game] if rotating would
- * move it out of bounds or collide with exists blocks
- * Raises: Failure if the direction is not a rotation
- * *)
-let rotate_piece game direction piece =
-  let rotate_result =
-    match direction with
-    | Rotate_Right -> Piece.rotate_right piece
-    | Rotate_Left -> Piece.rotate_left piece
-    | _ -> raise (Failure "GameState: can't rotate by non rotation direction")
-  in
-  if not (collision game rotate_result) then
-    { game with current_piece = Some rotate_result }
-  else
-    game
-
-(* Commiting a block to the board *)
 (** [commit_if_set game piece] is [game] if [piece] was converted to blocks at
  * its current location and the current_piece is reset to [None]
  * Does NOT check if the piece is touching the floor/landed/etc. *)
@@ -210,44 +145,6 @@ let commit_if_set game piece =
     free_fall_iterations = 0
   }
 
-(** [instadrop game piece] is the game after attempting to instantly commit a
- * falling piece to the board, by dropping and commiting it. *)
-let instadrop game piece =
-  let shift_blocks blocks by =
-    List.map
-      (fun b -> let (x, y) = Block.to_tuple b in Block.create (x, y + by))
-      blocks
-  in
-  let rec bubble (blocks: Block.t list) =
-    let shifted = shift_blocks blocks (-1) in
-      if block_collision game shifted then
-        blocks
-      else
-        bubble shifted
-    in
-  let new_blocks_set = bubble (Piece.to_blocks piece) in
-  { game with
-    current_piece = None;
-    points = game.points + points_for_drop game;
-    free_fall_iterations = 0;
-    blocks = game.blocks @ new_blocks_set;
-    time = Unix.gettimeofday ()
-  }
-
-
-(* Piece Spawning *)
-(** [spawn_piece game] is the game after making the [next_piece] the
- * [current_piece] and generating a new next_piece. If the [current_piece]
- * intersects then it is None. *)
-let spawn_piece game =
-  let start_loc = (game.grid_width / 2, game.grid_height - 1) in
-  let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
-  let opt_piece = if
-    not (collision game game.next_piece) then Some new_piece
-    else None in
-  { game with current_piece = opt_piece; next_piece = new_piece }
-
-(* Update Score + Level *)
 (** [clean_rows game] is the game after removing full rows and updating the
  * score and rows cleared accordingly. *)
 let clean_rows game =
@@ -291,12 +188,130 @@ let clean_rows game =
     points = new_points
   }
 
-(** [update_level game] is the game after updating the level and changing the
- * block speed accordingly. *)
-let update_level game =
+
+
+(* ------ Moving Pieces ------------ *)
+
+(** [move_piece game direction piece] is the [game] after moving [piece] by the
+ * direction specified in [direction]. Is the same as [game] if moving the
+ * [piece] would move it out of bounds or collide with existing block
+ * Raises: Failure if the direction is not a movement
+ * *)
+let move_piece game direction piece =
+  let move_result =
+    match direction with
+    | Left -> Piece.left piece
+    | Right -> Piece.right piece
+    | Down ->  Piece.down piece
+    | _ -> raise (Failure "GameState: direction wasn't left/right/down")
+  in
+  if not (collision game move_result) then
+    { game with current_piece = Some move_result }
+  else
+    game
+
+(** [rotate_piece game direction] is the [game] after moving [piece] by the
+ * orientation specified in [direction]. Is the same as [game] if rotating would
+ * move it out of bounds or collide with exists blocks
+ * Raises: Failure if the direction is not a rotation
+ * *)
+let rotate_piece game direction piece =
+  let rotate_result =
+    match direction with
+    | Rotate_Right -> Piece.rotate_right piece
+    | Rotate_Left -> Piece.rotate_left piece
+    | _ -> raise (Failure "GameState: can't rotate by non rotation direction")
+  in
+  if not (collision game rotate_result) then
+    { game with current_piece = Some rotate_result }
+  else
+    game
+
+(** [instadrop game piece] is the game after attempting to instantly commit a
+ * falling piece to the board, by dropping and commiting it. *)
+let instadrop game piece =
+  let shift_blocks blocks by =
+    List.map
+      (fun b -> let (x, y) = Block.to_tuple b in Block.create (x, y + by))
+      blocks
+  in
+  let rec bubble (blocks: Block.t list) =
+    let shifted = shift_blocks blocks (-1) in
+      if block_collision game shifted then
+        blocks
+      else
+        bubble shifted
+    in
+  let new_blocks_set = bubble (Piece.to_blocks piece) in
   { game with
-    level = calculate_level game;
+    current_piece = None;
+    points = game.points + points_for_drop game;
+    free_fall_iterations = 0;
+    blocks = game.blocks @ new_blocks_set;
+    time = Unix.gettimeofday ()
   }
+
+(** [spawn_piece game] is the game after making the [next_piece] the
+ * [current_piece] and generating a new next_piece. If the [current_piece]
+ * intersects then it is None. *)
+let spawn_piece game =
+  let start_loc = (game.grid_width / 2, game.grid_height - 1) in
+  let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
+  let opt_piece = if
+    not (collision game game.next_piece) then Some new_piece
+    else None in
+  { game with current_piece = opt_piece; next_piece = new_piece }
+
+
+
+(* ------ Signature ------------ *)
+
+let game_over game =
+  game.over
+
+let paused game =
+  game.paused
+
+let rows_cleared game =
+  game.rows_cleared
+
+let points game =
+  game.points
+
+let level game =
+  game.level
+
+(** [current_piece game] is the current piece being dropped by the player *)
+let current_piece game =
+  game.current_piece
+
+(** [blocks game] is a list of the blocks in the board  *)
+let blocks game =
+  game.blocks
+
+(** [init dimensions standard] creates a tetris game with a board of size
+    [dimensions] and uses standard rules if [standard] is true or NES rules
+    otherwise *)
+let init dimensions standard =
+  let (w, h) = dimensions in
+  let spawn = w / 2, h - 1 in
+  let spawn_piece = (Piece.create spawn (Randompiece.random_piece ())) in
+  {
+  blocks = [];
+  grid_width = w;
+  grid_height = h;
+  current_piece = None;
+  next_piece = spawn_piece;
+  over = false;
+  time = 0.;
+  free_fall_iterations = 0;
+  input_buffer = 0.05;
+  points = 0;
+  rows_cleared = 0;
+  paused = false;
+  level = 1;
+  standard_rules = standard;
+}
 
 (** [process game] is the game after updating with player input and the time. *)
 let process game =
@@ -341,14 +356,3 @@ let process game =
             time = new_time;
             free_fall_iterations = game.free_fall_iterations + 1
           }
-
-(* ---- Information ----- *)
-
-(** [current_piece game] is the current piece being dropped by the player *)
-let current_piece game =
-  game.current_piece
-
-(** [blocks game] is a list of the blocks in the board  *)
-let blocks game =
-  game.blocks
-
