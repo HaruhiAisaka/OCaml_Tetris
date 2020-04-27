@@ -16,7 +16,6 @@ type t = {
   next_piece: Piece.t;
   (* Game State *)
   time: float;
-  countdown: float; (* Time until piece drops *)
   input_buffer: float; (* Time between succesive butten inputs *)
   free_fall_iterations: int; (* Number of times a block has fallen *)
   over: bool;
@@ -30,7 +29,33 @@ type t = {
    * insta-drops the piece *)
 }
 
+(* ---- Rules + Game State of Tetris ---- *)
+
+let game_over game =
+  game.over
+
+let paused game =
+  game.paused
+
+let next_piece game =
+  game.next_piece
+
+let points game =
+  game.points
+
+let level game =
+  game.level
+
+let block_speed game =
+  0.50 -. (0.05 *. (float_of_int game.level -. 1.0))
+
 (* ----- Helper ----- *)
+(** Range operator from Stack Overflow *)
+let (--) i j =
+    let rec aux n acc =
+      if n < i then acc else aux (n-1) (n :: acc)
+    in aux j []
+
 (** [get_block game loc] is some block with location [loc] or None if it doesn't
  * exist. *)
 let get_block game loc =
@@ -84,10 +109,10 @@ let rec calculate_next_piece game is_second_roll =
       calculate_next_piece game true
     | Some p -> p
 
-(** [points_for_line game number_cleared] is the amount of points the player would be rewarded
+(** [points_for_line number_cleared] is the amount of points the player would be rewarded
   for clearing [number_cleared] lines
   Requires: [number_cleared] is between 0 and 4 *)
-let points_for_line game number_cleared =
+let points_for_line number_cleared =
   let _ = assert (number_cleared >= 0 && number_cleared <= 4) in
   match number_cleared with
   | 0 -> 0 | 1 -> 40 | 2 -> 100 | 3 -> 300 | 4 -> 1200
@@ -146,7 +171,6 @@ let init dimensions =
   next_piece = random_piece dimensions;
   over = false;
   time = 0.;
-  countdown = 1.;
   free_fall_iterations = 0;
   input_buffer = 0.05;
   points = 0;
@@ -220,29 +244,56 @@ let spawn_piece game: Piece.t option =
 (** [clean_rows game] is the game after removing full rows and updating the
  * score and rows cleared accordingly. *)
 let clean_rows game =
+  let row_size = game.grid_width in
   (* Clears [row] and moves all rows above it down 1 block *)
-  let cascade (row: (int * int) list) =
-    failwith "unimplemted"
+  let cascade (height: int) (blocks_tpl: int * Block.t list) : (int * Block.t list) =
+    let (lines_cleared, blocks) = blocks_tpl in
+    let is_above_height block =
+      let (_, h) = Block.to_tuple block in
+      if h > height then Block.down block else block
+    in
+    (lines_cleared + 1, List.map is_above_height blocks)
   in
-  (* is an optional list of row locations. Exists if it can be cleared. None
-   otherwise *)
-  let check_row blocks height =
-    failwith "unimplemted"
+  (* is a tuple of the block list filtered of the row. If the difference in size
+   * of the 2 is >= a line then treat it as a cleared line and cascade it *)
+  let check_row (blocks_tpl: int * Block.t list) (height: int) : (int * Block.t list) =
+    let (lines_cleared, blocks) = blocks_tpl in
+    let not_in_line height block =
+      let (_, h) = Block.to_tuple block in h = height
+    in
+    let filtered_blocks = List.filter (not_in_line height) blocks in
+    let size_diff = (List.length blocks) - (List.length filtered_blocks) in
+    let _ = assert
+      (* if it clears 1 row, it should always be less than a full row or evenly
+          divide into one *)
+      (size_diff < row_size || size_diff mod row_size = 0)
+    in
+    if size_diff < row_size then
+      blocks_tpl
+      else (lines_cleared, filtered_blocks) |> cascade height
   in
   (* folds all rows from top to bottom, cascading and checking. Is the result of
-   * the combined cascades, along with a int for number of cascades done *)
-  let fold_rows blocks =
-    failwith "a"
+      the combined cascades, along with a int for number of cascades done *)
+  let fold_rows (blocks_tpl : int * Block.t list) : (int * Block.t list) =
+    List.fold_left check_row blocks_tpl (0 -- (game.grid_height - 1))
   in
-
-    (* Start from top down, check if its a full row *)
-    (* If it is clear it, then for all rows above, move it down by 1 *)
-    (* Go down until reaches bottom *)
+  (* Cascade/Delete rows and calculate points *)
+  let (lines_cleared, new_blocks) = fold_rows (0, game.blocks) in
+  let new_points = if game.standard_rules then game.points
+    else game.points + points_for_line lines_cleared
+  in
+  { game with
+    blocks = new_blocks;
+    rows_cleared = game.rows_cleared + lines_cleared;
+    points = new_points
+  }
 
 (** [update_level game] is the game after updating the level and changing the
  * block speed accordingly. *)
 let update_level game =
-  failwith "unimplemted"
+  { game with
+    level = calculate_level game;
+  }
 
 (** [step_game game] is the game state after being updated for each render loop
  * ~ in drop
@@ -269,7 +320,7 @@ let process command game =
     end
     (* Active piece exists, move it as normal with input/time *)
     | Some active_piece ->
-      let command = Command.get_command game.time game.countdown in
+      let command = Command.get_command game.time (block_speed game) in
       match command with
       | Pause -> { game with paused = true }
       | None -> game
@@ -280,7 +331,7 @@ let process command game =
       | Down -> move_piece game Down active_piece
       | Fall new_time ->
         if landed game active_piece then
-          commit_if_set game active_piece
+          commit_if_set game active_piece |> clean_rows
         else
           let game = move_piece game Down active_piece in
           {  game with
@@ -294,26 +345,6 @@ let is_valid piece gmae =
   failwith "unimplemted"
 
 
-(* ---- Rules + Game State of Tetris ---- *)
-
-let game_over game =
-  game.over
-
-let paused game =
-  game.paused
-
-let next_piece game =
-  game.next_piece
-
-let points game =
-  game.points
-
-let level game =
-  game.level
-
-
-let block_speed game =
-  0.50 -. (0.05 *. (float_of_int game.level -. 1.0))
 
 (* ---- Information ----- *)
 
