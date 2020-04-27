@@ -1,16 +1,25 @@
-open Graphics;;
-open Command;;
-open Block;;
-open Piece;;
-open Randompiece;;
+open Block
+open Command
+open GameState
+open Graphics
+open Piece
+open Randompiece
 
-Graphics.open_graph " 400x800";;
+let screen_size = (400, 800)
+
+let _ = Graphics.open_graph " 400x800"
 
 (** [box_width] is the length of a 1 x 1 block in pixels*)
 let box_width=40
 
 (** [time_between_drops] is the number of seconds between each forced drop*)
 let time_between_drops=1.0
+
+(** [clear_screen color] clears the whole screen with [color] *)
+let clear_screen color =
+  set_color color;
+  let width, height = screen_size in
+  Graphics.fill_rect 0 0 width height
 
 (** [draw_block color block] draws [block] with the color: [color]*)
 let draw_block color (block:Block.t)=
@@ -23,6 +32,11 @@ let draw_piece color (piece:Piece.t)=
   match piece|>to_blocks with
   |blocks-> List.fold_left (fun unit block-> draw_block color block) () blocks
 
+let draw_piece_if_exist (piece: Piece.t option) =
+    match piece  with
+    | Some p -> draw_piece Graphics.red p
+    | None -> ()
+(*
 (**[collision piece placed] is true iff a block in [piece] overlaps with a point
    in [placed] or a block is outside of the grid*)
 let collision piece placed =
@@ -40,6 +54,7 @@ let landed piece placed =
     |[]-> false
     |(x,y)::t-> List.mem (x,y-1) placed || landed_helper t placed
   in landed_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) placed
+*)
 
 (** [move_piece piece dir color] moves [piece] in the direction [dir] with color [color]*)
 let move_piece piece dir color=
@@ -48,6 +63,7 @@ let move_piece piece dir color=
 
 (** [move] is the main control point of the game. It generates a game of tetris and
     moves pieces based on user input. *)
+(*
 let move unit=
   let rec update last_drop placed (current_piece:Piece.t) new_piece =
     if new_piece then let new_piece = random_piece() in
@@ -87,3 +103,20 @@ let move unit=
 
 
 move ();
+*)
+let tetris = GameState.init (4, 8)
+
+let rec play tetris =
+  if GameState.game_over tetris then print_endline "game over" else
+
+  let game = GameState.process tetris in
+  begin
+    clear_screen Graphics.white;
+    List.iter (fun b -> draw_block Graphics.blue b) (GameState.blocks game);
+    draw_piece_if_exist (GameState.current_piece game);
+
+    play game
+  end
+
+
+let _ = play tetris

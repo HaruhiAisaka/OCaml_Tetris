@@ -305,7 +305,7 @@ let update_level game =
  *  CAN SPAWN -> make new piece and make it active
  *  CAN'T SPAWN -> game over = true
  *)
-let process command game =
+let process game =
   if game.over then (* Game over *)
     begin print_endline "game over"; game end
   else if game.paused then (* Pause *)

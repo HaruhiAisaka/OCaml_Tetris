@@ -15,8 +15,8 @@ val init : int * int -> t
 
 (* ---- Processing ----- *)
 
-(** TODO rewrite *)
-val process : command -> t -> t
+(**  *)
+val process : t -> t
 
 
 (* ---- Rules + Game State of Tetris ---- *)
