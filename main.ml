@@ -46,7 +46,7 @@ let draw_game game =
     draw_piece_if_exist (GameState.current_piece game)
 
 
-let tetris = GameState.init (10, 20) true
+let tetris = GameState.init (10, 20) false
 
 (** [play tetris] is the render loop of the game *)
 let rec play tetris =
