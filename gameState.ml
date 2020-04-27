@@ -13,7 +13,7 @@ type t = {
   (* About the pieces *)
   blocks: Block.t list; (* TODO Map? *)
   current_piece: Piece.t option;
-(*   next_piece: Piece.t; *)
+  next_piece: Piece.t;
   (* Game State *)
   time: float;
   input_buffer: float; (* Time between succesive butten inputs *)
@@ -176,13 +176,14 @@ let landed game piece  =
 
 let init dimensions =
   let (w, h) = dimensions in
+  let spawn = w / 2, h - 1 in
+  let spawn_piece = (Piece.create spawn (Randompiece.random_piece ())) in
   {
   blocks = [];
   grid_width = w;
   grid_height = h;
   current_piece = None;
-(*   next_piece =  spawn; *)
-
+  next_piece = spawn_piece;
   over = false;
   time = 0.;
   free_fall_iterations = 0;
@@ -246,14 +247,16 @@ let commit_if_set game piece =
   }
 
 (* Piece Spawning *)
-(** [spawn_piece game] is a random initial piece spawned at the top center of
- * the board. Is [Some piece] if it was able to spawn a piece unblocked by
- * existing blocks and [None] otherwise. *)
-let spawn_piece game: Piece.t option =
+(** [spawn_piece game] is the game after making the [next_piece] the
+ * [current_piece] and generating a new next_piece. If the [current_piece]
+ * intersects then it is None. *)
+let spawn_piece game =
   let start_loc = (game.grid_width / 2, game.grid_height - 1) in
-  (* TODO should spawn from top (grid_height - 1) but is out of bounds *)
   let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
-  if not (collision game new_piece) then Some new_piece else None
+  let opt_piece = if
+    not (collision game game.next_piece) then Some new_piece
+    else None in
+  { game with current_piece = opt_piece; next_piece = new_piece }
 
 (* Update Score + Level *)
 (** [clean_rows game] is the game after removing full rows and updating the
@@ -325,9 +328,10 @@ let process game =
   else
     match game.current_piece with
     | None -> begin
-    (* No active piece; spawn one *)
-      match spawn_piece game with
-      | Some p -> { game with current_piece = Some p }
+      let game = spawn_piece game in
+      (* No active piece; spawn one *)
+      match game.current_piece with
+      | Some p -> game
       | None -> { game with over = true } (* Can't spawn; game over *)
     end
     (* Active piece exists, move it as normal with input/time *)
