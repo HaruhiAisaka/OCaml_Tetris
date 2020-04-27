@@ -11,7 +11,7 @@ type t = {
   grid_width: int;
   grid_height: int;
   (* About the pieces *)
-  blocks: Block.t list; (* TODO Map? *)
+  blocks: Block.t list; (* TODO Map *)
   current_piece: Piece.t option;
   next_piece: Piece.t;
   (* Game State *)
@@ -29,17 +29,14 @@ type t = {
    * insta-drops the piece *)
 }
 
-(* ---- Rules + Game State of Tetris ---- *)
-
 let game_over game =
   game.over
 
 let paused game =
   game.paused
 
-let next_piece game =
-  failwith "a"
-(*   game.next_piece *)
+let rows_cleared game =
+  game.rows_cleared
 
 let points game =
   game.points
@@ -68,52 +65,6 @@ let get_block game loc =
 
 (* ---- Internal ----- *)
 
-(** [random_number_mappings n] maps an number [n] to a tetrimino piece
-  Requires: [n] is 0..7
-*)
-let tetrimino_map (width, height) n =
-  let (x, y) = ((width / 2), height) in
-  match n with
-  | 0 -> Piece.create (x, y) (Piece.I (1, 1))
-  | 1 -> Piece.create (x, y) Piece.J
-  | 2 -> Piece.create (x, y) Piece.L
-  | 3 -> Piece.create (x, y) Piece.O
-  | 4 -> Piece.create (x, y) Piece.S
-  | 5 -> Piece.create (x, y) Piece.T
-  | 6 -> Piece.create (x, y) Piece.Z
-  | _ -> failwith "Passed a number without a mapping to a piece"
-
-(** [random_piece] is a random tetrimino. Used mostly to start the game with a
-    random piece *)
-(*
-let random_piece (width, height) =
-  tetrimino_map (width, height) (Random.int 7)
-*)
-
-(** Determines the next piece of the game, based on the following algorithm:
-  Assign 7 of the 8 faces of an 8 sided die to a tetrimino. The result of the
-  dice roll is the next piece. If you roll a face
-  that is the same as the last piece or you roll an 8, you reroll. This reroll
-  is final, and will result in a piece 1-7 (repeats are ok)
-*)
-(*
-let rec calculate_next_piece game is_second_roll =
-  if is_second_roll then random_piece (game.grid_width, game.grid_height)
-  else
-    let selected = match Random.int 8 with
-      | n when 0 <= n && n < 7 ->
-        Some (tetrimino_map (game.grid_width, game.grid_height) n)
-      | 8 -> None
-      | _ -> failwith "In selecting, random number out of bounds"
-    in
-    match selected with
-    | None ->
-      calculate_next_piece game true
-    | Some a when Some a = game.current_piece ->
-      calculate_next_piece game true
-    | Some p -> p
-*)
-
 (** [points_for_line number_cleared] is the amount of points the player would be rewarded
   for clearing [number_cleared] lines
   Requires: [number_cleared] is between 0 and 4 *)
@@ -140,6 +91,7 @@ let calculate_level game =
     10
 
 (* ---- Blocks Representation ----- *)
+
 let block_tuples game : (int * int) list =
   List.map (fun b -> Block.to_tuple b) game.blocks
 
@@ -346,18 +298,7 @@ let update_level game =
     level = calculate_level game;
   }
 
-(** [step_game game] is the game state after being updated for each render loop.
- * ~ in drop
- *  move the piece by player control
- * ACTIVE PIECE ? -->
- *  time to fall -> step it down
- *      --> if possible, move it down ELSE commit to board, delete rows etc.
- * NO PIECE? --> attempt spawn piece
- *  CAN SPAWN -> make new piece and make it active
- *  CAN'T SPAWN -> game over = true
- *)
-let pe s = print_endline s
-
+(** [process game] is the game after updating with player input and the time. *)
 let process game =
   if game.over then (* Game over *)
     begin print_endline "game over"; game end
@@ -388,11 +329,10 @@ let process game =
         else
           move_piece game Down active_piece
       | Fall new_time ->
-(*
-        pe (string_of_int (game.points));
-        pe ("Lv. " ^ (string_of_int  (game.level)));
-        print_endline "------";
-*)
+        print_endline ("Lv. : " ^ (string_of_int game.level));
+        print_endline ("Points : " ^ (string_of_int game.points));
+        print_endline ("Lines Cleared : " ^ (string_of_int game.rows_cleared));
+        print_endline "---------------------";
         if landed game active_piece then
           commit_if_set game active_piece |> clean_rows |> update_level
         else
@@ -401,13 +341,6 @@ let process game =
             time = new_time;
             free_fall_iterations = game.free_fall_iterations + 1
           }
-
-
-let is_valid piece gmae =
-  (** Compute this when blocks + piece exist *)
-  failwith "unimplemted"
-
-
 
 (* ---- Information ----- *)
 

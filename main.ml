@@ -45,7 +45,7 @@ let draw_game game =
     List.iter (fun b -> draw_block Graphics.blue b) (GameState.blocks game);
     draw_piece_if_exist (GameState.current_piece game)
 
-let tetris = GameState.init (10, 20) false
+let tetris = GameState.init (10, 20) true
 
 let rec play tetris =
   if GameState.game_over tetris then print_endline "game over" else
