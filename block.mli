@@ -27,6 +27,9 @@ val right : t -> t
 (** [down block] is the block moved one square down. *)
 val down : t -> t
 
+(** [up block] is the block moved up square down. *)
+val up : t -> t
+
 (**[to_tuple block] is the cordinates of the block
 represented as a list of tuples*)
 val to_tuple : t -> (int*int)

@@ -159,6 +159,18 @@ let collision game piece =
                 collision_helper t placed
   in collision_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
 
+let block_collision game (blocks: Block.t list) =
+  let rec collision_helper piece_positions placed =
+    match piece_positions with
+    |[]-> false
+    |(x,y)::t-> x < 0 ||
+                x >= game.grid_width ||
+                y < 0 ||
+                y >= game.grid_height ||
+                List.mem (x,y) placed ||
+                collision_helper t placed
+  in collision_helper (List.map Block.to_tuple blocks) (block_tuples game)
+
 (** [landed piece placed] is true iff a block in [piece] is directly on top of
     a point in placed *)
 let landed game piece  =
@@ -192,7 +204,7 @@ let init dimensions =
   rows_cleared = 0;
   paused = false;
   level = 1;
-  standard_rules = false;
+  standard_rules = true;
 }
 
 (* Moving Piece *)
@@ -246,6 +258,31 @@ let commit_if_set game piece =
     free_fall_iterations = 0
   }
 
+(** [instadrop game piece] is the game after attempting to instantly commit a
+ * falling piece to the board, by dropping and commiting it. *)
+let instadrop game piece =
+  let shift_blocks blocks by =
+    List.map
+      (fun b -> let (x, y) = Block.to_tuple b in Block.create (x, y + by))
+      blocks
+  in
+  let rec bubble (blocks: Block.t list) =
+    let shifted = shift_blocks blocks (-1) in
+      if block_collision game shifted then
+        blocks
+      else
+        bubble shifted
+    in
+  let new_blocks_set = bubble (Piece.to_blocks piece) in
+  { game with
+    current_piece = None;
+    points = game.points + points_for_drop game;
+    free_fall_iterations = 0;
+    blocks = game.blocks @ new_blocks_set;
+    time = Unix.gettimeofday ()
+  }
+
+
 (* Piece Spawning *)
 (** [spawn_piece game] is the game after making the [next_piece] the
  * [current_piece] and generating a new next_piece. If the [current_piece]
@@ -296,6 +333,7 @@ let clean_rows game =
     else game.points + points_for_line lines_cleared
   in
   { game with
+    level = calculate_level game;
     blocks = new_blocks;
     rows_cleared = game.rows_cleared + lines_cleared;
     points = new_points
@@ -308,7 +346,7 @@ let update_level game =
     level = calculate_level game;
   }
 
-(** [step_game game] is the game state after being updated for each render loop
+(** [step_game game] is the game state after being updated for each render loop.
  * ~ in drop
  *  move the piece by player control
  * ACTIVE PIECE ? -->
@@ -344,14 +382,20 @@ let process game =
       | Rotate_Left -> rotate_piece game Rotate_Left active_piece
       | Left -> move_piece game Left active_piece
       | Right -> move_piece game Right active_piece
-      | Down -> move_piece game Down active_piece
+      | Down ->
+        if game.standard_rules then
+          instadrop game active_piece |> clean_rows |> update_level
+        else
+          move_piece game Down active_piece
       | Fall new_time ->
+(*
         pe (string_of_int (game.points));
         pe ("Lv. " ^ (string_of_int  (game.level)));
         print_endline "------";
+*)
         if landed game active_piece then
-          commit_if_set game active_piece |> clean_rows
-          else
+          commit_if_set game active_piece |> clean_rows |> update_level
+        else
           let game = move_piece game Down active_piece in
           {  game with
             time = new_time;
