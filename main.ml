@@ -104,7 +104,7 @@ let move unit=
 
 move ();
 *)
-let tetris = GameState.init (4, 8)
+let tetris = GameState.init (10, 20)
 
 let rec play tetris =
   if GameState.game_over tetris then print_endline "game over" else

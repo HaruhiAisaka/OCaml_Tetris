@@ -13,7 +13,7 @@ type t = {
   (* About the pieces *)
   blocks: Block.t list; (* TODO Map? *)
   current_piece: Piece.t option;
-  next_piece: Piece.t;
+(*   next_piece: Piece.t; *)
   (* Game State *)
   time: float;
   input_buffer: float; (* Time between succesive butten inputs *)
@@ -38,7 +38,8 @@ let paused game =
   game.paused
 
 let next_piece game =
-  game.next_piece
+  failwith "a"
+(*   game.next_piece *)
 
 let points game =
   game.points
@@ -84,8 +85,10 @@ let tetrimino_map (width, height) n =
 
 (** [random_piece] is a random tetrimino. Used mostly to start the game with a
     random piece *)
+(*
 let random_piece (width, height) =
   tetrimino_map (width, height) (Random.int 7)
+*)
 
 (** Determines the next piece of the game, based on the following algorithm:
   Assign 7 of the 8 faces of an 8 sided die to a tetrimino. The result of the
@@ -93,6 +96,7 @@ let random_piece (width, height) =
   that is the same as the last piece or you roll an 8, you reroll. This reroll
   is final, and will result in a piece 1-7 (repeats are ok)
 *)
+(*
 let rec calculate_next_piece game is_second_roll =
   if is_second_roll then random_piece (game.grid_width, game.grid_height)
   else
@@ -108,6 +112,7 @@ let rec calculate_next_piece game is_second_roll =
     | Some a when Some a = game.current_piece ->
       calculate_next_piece game true
     | Some p -> p
+*)
 
 (** [points_for_line number_cleared] is the amount of points the player would be rewarded
   for clearing [number_cleared] lines
@@ -146,7 +151,12 @@ let collision game piece =
   let rec collision_helper piece_positions placed =
     match piece_positions with
     |[]-> false
-    |(x,y)::t-> x < 0 || x > game.grid_width || List.mem (x,y) placed || collision_helper t placed
+    |(x,y)::t-> x < 0 ||
+                x > game.grid_width ||
+                y < 0 ||
+                y > game.grid_height ||
+                List.mem (x,y) placed ||
+                collision_helper t placed
   in collision_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
 
 (** [landed piece placed] is true iff a block in [piece] is directly on top of
@@ -155,7 +165,10 @@ let landed game piece  =
   let rec landed_helper piece_positions placed =
     match piece_positions with
     |[]-> false
-    |(x,y)::t-> List.mem (x,y-1) placed || landed_helper t placed
+    |(x,y)::t->
+      (List.mem (x,y-1) placed) || (* Collision *)
+      (List.exists (fun (x, y) -> y <= 0) piece_positions) || (* Bottom *)
+      landed_helper t placed
   in landed_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
 
 
@@ -168,7 +181,8 @@ let init dimensions =
   grid_width = w;
   grid_height = h;
   current_piece = None;
-  next_piece = random_piece dimensions;
+(*   next_piece =  spawn; *)
+
   over = false;
   time = 0.;
   free_fall_iterations = 0;
@@ -190,7 +204,7 @@ let move_piece game direction piece =
   let move_result =
     match direction with
     | Left -> Piece.left piece
-    | Right -> Piece.left piece
+    | Right -> Piece.right piece
     | Down ->  Piece.down piece
     | _ -> raise (Failure "GameState: direction wasn't left/right/down")
   in
@@ -225,7 +239,7 @@ let rotate_piece game direction piece =
 let commit_if_set game piece =
   let piece_as_blocks = Piece.to_blocks piece in
   { game with
-    blocks = piece_as_blocks;
+    blocks = game.blocks @ piece_as_blocks;
     current_piece = None;
     points = game.points + points_for_drop game;
     free_fall_iterations = 0
@@ -259,15 +273,17 @@ let clean_rows game =
   let check_row (blocks_tpl: int * Block.t list) (height: int) : (int * Block.t list) =
     let (lines_cleared, blocks) = blocks_tpl in
     let not_in_line height block =
-      let (_, h) = Block.to_tuple block in h = height
+      let (_, h) = Block.to_tuple block in not (h = height)
     in
     let filtered_blocks = List.filter (not_in_line height) blocks in
     let size_diff = (List.length blocks) - (List.length filtered_blocks) in
+(*
     let _ = assert
       (* if it clears 1 row, it should always be less than a full row or evenly
           divide into one *)
       (size_diff < row_size || size_diff mod row_size = 0)
     in
+*)
     if size_diff < row_size then
       blocks_tpl
       else (lines_cleared, filtered_blocks) |> cascade height
@@ -305,6 +321,8 @@ let update_level game =
  *  CAN SPAWN -> make new piece and make it active
  *  CAN'T SPAWN -> game over = true
  *)
+let pe s = print_endline s
+
 let process game =
   if game.over then (* Game over *)
     begin print_endline "game over"; game end
@@ -322,17 +340,24 @@ let process game =
     | Some active_piece ->
       let command = Command.get_command game.time (block_speed game) in
       match command with
-      | Pause -> { game with paused = true }
+      | Pause -> pe "Pause"; { game with paused = true }
       | None -> game
-      | Rotate_Right -> rotate_piece game Rotate_Right active_piece
-      | Rotate_Left -> rotate_piece game Rotate_Left active_piece
-      | Left -> move_piece game Left active_piece
-      | Right -> move_piece game Right active_piece
-      | Down -> move_piece game Down active_piece
+      | Rotate_Right -> pe "rr"; rotate_piece game Rotate_Right active_piece
+      | Rotate_Left -> pe "rl"; rotate_piece game Rotate_Left active_piece
+      | Left -> pe "left"; move_piece game Left active_piece
+      | Right ->pe "right"; move_piece game Right active_piece
+      | Down -> pe "down"; move_piece game Down active_piece
       | Fall new_time ->
+(*
+          List.iter
+            (fun b -> print_endline (string_of_int (snd (Block.to_tuple  b))))
+            (Piece.to_blocks active_piece);
+*)
+        print_endline "------";
+          print_endline (string_of_bool (landed game active_piece ));
         if landed game active_piece then
           commit_if_set game active_piece |> clean_rows
-        else
+          else
           let game = move_piece game Down active_piece in
           {  game with
             time = new_time;

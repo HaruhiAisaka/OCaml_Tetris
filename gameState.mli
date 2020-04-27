@@ -15,7 +15,7 @@ val init : int * int -> t
 
 (* ---- Processing ----- *)
 
-(**  *)
+(** TODO rewrite *)
 val process : t -> t
 
 
