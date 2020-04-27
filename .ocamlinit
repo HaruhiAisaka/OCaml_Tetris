@@ -6,6 +6,7 @@
 #directory "_build";;
 
 #load "command.cmo";;
-#load "gameState.cmo";;
-#load "piece.cmo";;
 #load "block.cmo";;
+#load "piece.cmo";;
+#load "randompiece.cmo";;
+#load "gameState.cmo";;
