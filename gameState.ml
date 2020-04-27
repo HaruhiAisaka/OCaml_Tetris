@@ -152,9 +152,9 @@ let collision game piece =
     match piece_positions with
     |[]-> false
     |(x,y)::t-> x < 0 ||
-                x > game.grid_width ||
+                x >= game.grid_width ||
                 y < 0 ||
-                y > game.grid_height ||
+                y >= game.grid_height ||
                 List.mem (x,y) placed ||
                 collision_helper t placed
   in collision_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
@@ -250,7 +250,8 @@ let commit_if_set game piece =
  * the board. Is [Some piece] if it was able to spawn a piece unblocked by
  * existing blocks and [None] otherwise. *)
 let spawn_piece game: Piece.t option =
-  let start_loc = (game.grid_width / 2, game.grid_height - 1) in
+  let start_loc = (game.grid_width / 2, game.grid_height - 2) in
+  (* TODO should spawn from top (grid_height - 1) but is out of bounds *)
   let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
   if not (collision game new_piece) then Some new_piece else None
 
@@ -270,20 +271,13 @@ let clean_rows game =
   in
   (* is a tuple of the block list filtered of the row. If the difference in size
    * of the 2 is >= a line then treat it as a cleared line and cascade it *)
-  let check_row (blocks_tpl: int * Block.t list) (height: int) : (int * Block.t list) =
+  let check_row (height: int)  (blocks_tpl: int * Block.t list) : (int * Block.t list) =
     let (lines_cleared, blocks) = blocks_tpl in
     let not_in_line height block =
       let (_, h) = Block.to_tuple block in not (h = height)
     in
     let filtered_blocks = List.filter (not_in_line height) blocks in
     let size_diff = (List.length blocks) - (List.length filtered_blocks) in
-(*
-    let _ = assert
-      (* if it clears 1 row, it should always be less than a full row or evenly
-          divide into one *)
-      (size_diff < row_size || size_diff mod row_size = 0)
-    in
-*)
     if size_diff < row_size then
       blocks_tpl
       else (lines_cleared, filtered_blocks) |> cascade height
@@ -291,7 +285,7 @@ let clean_rows game =
   (* folds all rows from top to bottom, cascading and checking. Is the result of
       the combined cascades, along with a int for number of cascades done *)
   let fold_rows (blocks_tpl : int * Block.t list) : (int * Block.t list) =
-    List.fold_left check_row blocks_tpl (0 -- (game.grid_height - 1))
+    List.fold_right check_row (0 -- (game.grid_height - 1)) blocks_tpl
   in
   (* Cascade/Delete rows and calculate points *)
   let (lines_cleared, new_blocks) = fold_rows (0, game.blocks) in
@@ -340,21 +334,17 @@ let process game =
     | Some active_piece ->
       let command = Command.get_command game.time (block_speed game) in
       match command with
-      | Pause -> pe "Pause"; { game with paused = true }
+      | Pause -> { game with paused = true }
       | None -> game
-      | Rotate_Right -> pe "rr"; rotate_piece game Rotate_Right active_piece
-      | Rotate_Left -> pe "rl"; rotate_piece game Rotate_Left active_piece
-      | Left -> pe "left"; move_piece game Left active_piece
-      | Right ->pe "right"; move_piece game Right active_piece
-      | Down -> pe "down"; move_piece game Down active_piece
+      | Rotate_Right -> rotate_piece game Rotate_Right active_piece
+      | Rotate_Left -> rotate_piece game Rotate_Left active_piece
+      | Left -> move_piece game Left active_piece
+      | Right -> move_piece game Right active_piece
+      | Down -> move_piece game Down active_piece
       | Fall new_time ->
-(*
-          List.iter
-            (fun b -> print_endline (string_of_int (snd (Block.to_tuple  b))))
-            (Piece.to_blocks active_piece);
-*)
+        pe (string_of_int (game.points));
+        pe ("Lv. " ^ (string_of_int  (game.level)));
         print_endline "------";
-          print_endline (string_of_bool (landed game active_piece ));
         if landed game active_piece then
           commit_if_set game active_piece |> clean_rows
           else

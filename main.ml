@@ -8,6 +8,7 @@ open Randompiece
 let screen_size = (400, 800)
 
 let _ = Graphics.open_graph " 400x800"
+let _ = Graphics.auto_synchronize true
 
 (** [box_width] is the length of a 1 x 1 block in pixels*)
 let box_width=40
@@ -56,54 +57,6 @@ let landed piece placed =
   in landed_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) placed
 *)
 
-(** [move_piece piece dir color] moves [piece] in the direction [dir] with color [color]*)
-let move_piece piece dir color=
-  draw_piece white piece;
-  draw_piece color (dir piece)
-
-(** [move] is the main control point of the game. It generates a game of tetris and
-    moves pieces based on user input. *)
-(*
-let move unit=
-  let rec update last_drop placed (current_piece:Piece.t) new_piece =
-    if new_piece then let new_piece = random_piece() in
-      (update last_drop placed (create (4,19) new_piece) false) else
-    if landed current_piece placed then
-      update last_drop (List.append placed (current_piece |> to_blocks |> (List.map (fun block-> to_tuple block)))) current_piece true
-    else let new_color = piece_color current_piece in
-      match get_command last_drop time_between_drops with
-      |Left -> if collision (Piece.left current_piece) placed then
-          update last_drop placed current_piece false else
-          (move_piece current_piece left new_color;
-           update last_drop placed (Piece.left current_piece) false)
-      |Down -> move_piece current_piece down new_color;
-        update last_drop placed (down current_piece) false
-      |Right -> if collision (Piece.right current_piece) placed then
-          update last_drop placed current_piece false else
-          (move_piece current_piece right new_color;
-           update last_drop placed (Piece.right current_piece) false)
-      |Pause -> ()
-      |Fall new_time -> move_piece current_piece down new_color;
-        update new_time placed (down current_piece) false
-      |Rotate_Right->if collision (rotate_right current_piece) placed then
-          update last_drop placed current_piece false else
-          (move_piece current_piece rotate_right new_color;
-           update last_drop placed (rotate_right current_piece) false)
-      |Rotate_Left->if collision (rotate_left current_piece) placed then
-          update last_drop placed current_piece false else
-          (move_piece current_piece rotate_left new_color;
-           update last_drop placed (rotate_left current_piece) false)
-      |None ->update last_drop placed current_piece false in
-  update (Unix.gettimeofday()) [(0,-1);(1,-1);(2,-1);(3,-1);(4,-1);(5,-1);(6,-1);(7,-1);(8,-1);(9,-1)] (create (4,19) T) true;;
-
-
-
-
-
-
-
-move ();
-*)
 let tetris = GameState.init (10, 20)
 
 let rec play tetris =
