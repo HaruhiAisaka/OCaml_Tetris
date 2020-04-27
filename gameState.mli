@@ -15,9 +15,8 @@ val init : int * int -> t
 
 (* ---- Processing ----- *)
 
-(** [process last_time deltatime control state] is the updated state of the game
-    based on [last_time], [deltatime] passed and [command] pressed. *)
-val process : float -> float -> command -> t -> t
+(** TODO rewrite *)
+val process : command -> t -> t
 
 
 (* ---- Rules + Game State of Tetris ---- *)

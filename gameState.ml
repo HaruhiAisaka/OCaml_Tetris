@@ -11,19 +11,34 @@ type t = {
   grid_width: int;
   grid_height: int;
   (* About the pieces *)
-  blocks: Block.t list;
+  blocks: Block.t list; (* TODO Map? *)
   current_piece: Piece.t option;
   next_piece: Piece.t;
   (* Game State *)
-  countdown: float;
+  time: float;
+  countdown: float; (* Time until piece drops *)
+  input_buffer: float; (* Time between succesive butten inputs *)
+  free_fall_iterations: int; (* Number of times a block has fallen *)
   over: bool;
   points: int;
   rows_cleared: int;
   paused: bool;
   level: int;
+  (* Settings *)
+  standard_rules: bool;
+  (* In non-standard tetris clearing lines doesn't give points and pressing down
+   * insta-drops the piece *)
 }
 
-
+(* ----- Helper ----- *)
+(** [get_block game loc] is some block with location [loc] or None if it doesn't
+ * exist. *)
+let get_block game loc =
+  let rec helper = function
+  | b :: t -> if Block.to_tuple b = loc then Some b else helper t
+  | [] -> None
+  in
+  helper game.blocks
 
 (* ---- Internal ----- *)
 
@@ -69,6 +84,21 @@ let rec calculate_next_piece game is_second_roll =
       calculate_next_piece game true
     | Some p -> p
 
+(** [points_for_line game number_cleared] is the amount of points the player would be rewarded
+  for clearing [number_cleared] lines
+  Requires: [number_cleared] is between 0 and 4 *)
+let points_for_line game number_cleared =
+  let _ = assert (number_cleared >= 0 && number_cleared <= 4) in
+  match number_cleared with
+  | 0 -> 0 | 1 -> 40 | 2 -> 100 | 3 -> 300 | 4 -> 1200
+  | _ -> failwith "should be impossible as the condition is asserted"
+
+
+(** [points_for_drop game] is the amount of points the player would be rewarded
+ * for dropping a piece *)
+let points_for_drop game =
+  21 + (3 * game.level) - game.free_fall_iterations
+
 (** [calculate_level game] is the current level the player is on, as a function
     of the game state *)
 let calculate_level game =
@@ -78,6 +108,30 @@ let calculate_level game =
     1 + ((game.rows_cleared - 1) / 10)
   else
     10
+
+(* ---- Blocks Representation ----- *)
+let block_tuples game : (int * int) list =
+  List.map (fun b -> Block.to_tuple b) game.blocks
+
+(* ---- Managing Board ----- *)
+
+(**[collision piece placed] is true iff a block in [piece] overlaps with a point
+   in [placed] or a block is outside of the grid *)
+let collision game piece =
+  let rec collision_helper piece_positions placed =
+    match piece_positions with
+    |[]-> false
+    |(x,y)::t-> x < 0 || x > game.grid_width || List.mem (x,y) placed || collision_helper t placed
+  in collision_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
+
+(** [landed piece placed] is true iff a block in [piece] is directly on top of
+    a point in placed *)
+let landed game piece  =
+  let rec landed_helper piece_positions placed =
+    match piece_positions with
+    |[]-> false
+    |(x,y)::t-> List.mem (x,y-1) placed || landed_helper t placed
+  in landed_helper (List.map (fun block -> to_tuple block) (to_blocks piece)) (block_tuples game)
 
 
 (* ---- Interface ----- *)
@@ -91,21 +145,104 @@ let init dimensions =
   current_piece = None;
   next_piece = random_piece dimensions;
   over = false;
+  time = 0.;
   countdown = 1.;
+  free_fall_iterations = 0;
+  input_buffer = 0.05;
   points = 0;
   rows_cleared = 0;
   paused = false;
   level = 1;
+  standard_rules = false;
 }
 
-let attempt_spawn =
-  failwith "A"
-let command_step game =
-  failwith "A"
-let drop_step game =
-  failwith "A"
-let update_step game =
-  failwith "A"
+(* Moving Piece *)
+(** [move_piece game direction piece] is the [game] after moving [piece] by the
+ * direction specified in [direction]. Is the same as [game] if moving the
+ * [piece] would move it out of bounds or collide with existing block
+ * Raises: Failure if the direction is not a movement
+ * *)
+let move_piece game direction piece =
+  let move_result =
+    match direction with
+    | Left -> Piece.left piece
+    | Right -> Piece.left piece
+    | Down ->  Piece.down piece
+    | _ -> raise (Failure "GameState: direction wasn't left/right/down")
+  in
+  if not (collision game move_result) then
+    { game with current_piece = Some move_result }
+  else
+    game
+
+
+(* Rotation and checking validity *)
+(** [rotate_piece game direction] is the [game] after moving [piece] by the
+ * orientation specified in [direction]. Is the same as [game] if rotating would
+ * move it out of bounds or collide with exists blocks
+ * Raises: Failure if the direction is not a rotation
+ * *)
+let rotate_piece game direction piece =
+  let rotate_result =
+    match direction with
+    | Rotate_Right -> Piece.rotate_right piece
+    | Rotate_Left -> Piece.rotate_left piece
+    | _ -> raise (Failure "GameState: can't rotate by non rotation direction")
+  in
+  if not (collision game rotate_result) then
+    { game with current_piece = Some rotate_result }
+  else
+    game
+
+(* Commiting a block to the board *)
+(** [commit_if_set game piece] is [game] if [piece] was converted to blocks at
+ * its current location and the current_piece is reset to [None]
+ * Does NOT check if the piece is touching the floor/landed/etc. *)
+let commit_if_set game piece =
+  let piece_as_blocks = Piece.to_blocks piece in
+  { game with
+    blocks = piece_as_blocks;
+    current_piece = None;
+    points = game.points + points_for_drop game;
+    free_fall_iterations = 0
+  }
+
+(* Piece Spawning *)
+(** [spawn_piece game] is a random initial piece spawned at the top center of
+ * the board. Is [Some piece] if it was able to spawn a piece unblocked by
+ * existing blocks and [None] otherwise. *)
+let spawn_piece game: Piece.t option =
+  let start_loc = (game.grid_width / 2, game.grid_height - 1) in
+  let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
+  if not (collision game new_piece) then Some new_piece else None
+
+(* Update Score + Level *)
+(** [clean_rows game] is the game after removing full rows and updating the
+ * score and rows cleared accordingly. *)
+let clean_rows game =
+  (* Clears [row] and moves all rows above it down 1 block *)
+  let cascade (row: (int * int) list) =
+    failwith "unimplemted"
+  in
+  (* is an optional list of row locations. Exists if it can be cleared. None
+   otherwise *)
+  let check_row blocks height =
+    failwith "unimplemted"
+  in
+  (* folds all rows from top to bottom, cascading and checking. Is the result of
+   * the combined cascades, along with a int for number of cascades done *)
+  let fold_rows blocks =
+    failwith "a"
+  in
+
+    (* Start from top down, check if its a full row *)
+    (* If it is clear it, then for all rows above, move it down by 1 *)
+    (* Go down until reaches bottom *)
+
+(** [update_level game] is the game after updating the level and changing the
+ * block speed accordingly. *)
+let update_level game =
+  failwith "unimplemted"
 
 (** [step_game game] is the game state after being updated for each render loop
  * ~ in drop
@@ -117,30 +254,39 @@ let update_step game =
  *  CAN SPAWN -> make new piece and make it active
  *  CAN'T SPAWN -> game over = true
  *)
-let process deltatime command game =
-  failwith "todo"
-(*
+let process command game =
   if game.over then (* Game over *)
     begin print_endline "game over"; game end
   else if game.paused then (* Pause *)
     begin print_endline "paused"; game end
-  else  (* Countdown the game timer *)
-    let time = game.countdown -. deltatime in
-*)
-
-(*
-    if time <= 0.0 || command = Down then begin
-      match game.current_piece with
-      (* Act on piece with [command] *)
-      | Some piece ->
-        command_step game |>
-      (* No piece; attempt to spawn a piece *)
-      | None -> failwith "A"
+  else
+    match game.current_piece with
+    | None -> begin
+    (* No active piece; spawn one *)
+      match spawn_piece game with
+      | Some p -> { game with current_piece = Some p }
+      | None -> { game with over = true } (* Can't spawn; game over *)
     end
-    else
-      print_endline "waiting"; game
-*)
-
+    (* Active piece exists, move it as normal with input/time *)
+    | Some active_piece ->
+      let command = Command.get_command game.time game.countdown in
+      match command with
+      | Pause -> { game with paused = true }
+      | None -> game
+      | Rotate_Right -> rotate_piece game Rotate_Right active_piece
+      | Rotate_Left -> rotate_piece game Rotate_Left active_piece
+      | Left -> move_piece game Left active_piece
+      | Right -> move_piece game Right active_piece
+      | Down -> move_piece game Down active_piece
+      | Fall new_time ->
+        if landed game active_piece then
+          commit_if_set game active_piece
+        else
+          let game = move_piece game Down active_piece in
+          {  game with
+            time = new_time;
+            free_fall_iterations = game.free_fall_iterations + 1
+          }
 
 
 let is_valid piece gmae =
