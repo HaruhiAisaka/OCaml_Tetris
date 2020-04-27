@@ -250,7 +250,7 @@ let commit_if_set game piece =
  * the board. Is [Some piece] if it was able to spawn a piece unblocked by
  * existing blocks and [None] otherwise. *)
 let spawn_piece game: Piece.t option =
-  let start_loc = (game.grid_width / 2, game.grid_height - 2) in
+  let start_loc = (game.grid_width / 2, game.grid_height - 1) in
   (* TODO should spawn from top (grid_height - 1) but is out of bounds *)
   let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
   if not (collision game new_piece) then Some new_piece else None

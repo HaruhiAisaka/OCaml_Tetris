@@ -31,9 +31,9 @@ let create_I xy : Block.t list = let (x,y) = xy in
    Requires: [xy] be a tuple of non-negative ints.*)
 let create_O xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-   Block.create (x+1,y);
-   Block.create (x,y+1);
-   Block.create (x+1,y+1);]
+   Block.create (x-1,y);
+   Block.create (x,y-1);
+   Block.create (x-1,y-1);]
 
 (**[create_L xy] is an L piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
@@ -48,24 +48,24 @@ let create_L xy : Block.t list = let (x,y) = xy in
 let create_J xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
    Block.create (x-1,y);
-   Block.create (x-1,y+1);
+   Block.create (x+1,y-1);
    Block.create (x+1,y);]
 
 (**[create_S xy] is an S piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
 let create_S xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-   Block.create (x,y+1);
-   Block.create (x+1,y+1);
-   Block.create (x-1,y);]
+   Block.create (x,y-1);
+   Block.create (x+1,y);
+   Block.create (x-1,y-1);]
 
 (**[create_Z xy] is an Z piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
 let create_Z xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
-   Block.create (x,y+1);
-   Block.create (x-1,y+1);
-   Block.create (x+1,y);]
+   Block.create (x-1,y);
+   Block.create (x,y-1);
+   Block.create (x+1,y-1);]
 
 (**[create_T xy] is an T piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
@@ -73,7 +73,7 @@ let create_T xy : Block.t list = let (x,y) = xy in
   [Block.create (x,y);
    Block.create (x+1,y);
    Block.create (x-1,y);
-   Block.create (x,y+1);]
+   Block.create (x,y-1);]
 
 (* ------------------------------------------------------------------------- *)
 
