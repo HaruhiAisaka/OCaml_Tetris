@@ -32,16 +32,16 @@ type t = {
 
 (** Range operator from Stack Overflow. Is i..j inclusive *)
 let (--) i j =
-    let rec aux n acc =
-      if n < i then acc else aux (n-1) (n :: acc)
-    in aux j []
+  let rec aux n acc =
+    if n < i then acc else aux (n-1) (n :: acc)
+  in aux j []
 
 (** [get_block game loc] is some block with location [loc] or None if it doesn't
  * exist. *)
 let get_block game loc =
   let rec helper = function
-  | b :: t -> if Block.to_tuple b = loc then Some b else helper t
-  | [] -> None
+    | b :: t -> if Block.to_tuple b = loc then Some b else helper t
+    | [] -> None
   in
   helper game.blocks
 
@@ -54,8 +54,8 @@ let block_tuples game : (int * int) list =
 (* -------- Points / Level / Block Speed ----- *)
 
 (** [points_for_line number_cleared] is the amount of points the player would be rewarded
-  for clearing [number_cleared] lines
-  Requires: [number_cleared] is between 0 and 4 *)
+    for clearing [number_cleared] lines
+    Requires: [number_cleared] is between 0 and 4 *)
 let points_for_line number_cleared =
   let _ = assert (number_cleared >= 0 && number_cleared <= 4) in
   match number_cleared with
@@ -169,7 +169,7 @@ let clean_rows game =
     let size_diff = (List.length blocks) - (List.length filtered_blocks) in
     if size_diff < row_size then
       blocks_tpl
-      else (lines_cleared, filtered_blocks) |> cascade height
+    else (lines_cleared, filtered_blocks) |> cascade height
   in
   (* folds all rows from top to bottom, cascading and checking. Is the result of
       the combined cascades, along with a int for number of cascades done *)
@@ -237,11 +237,11 @@ let instadrop game piece =
   in
   let rec bubble (blocks: Block.t list) =
     let shifted = shift_blocks blocks (-1) in
-      if block_collision game shifted then
-        blocks
-      else
-        bubble shifted
-    in
+    if block_collision game shifted then
+      blocks
+    else
+      bubble shifted
+  in
   let new_blocks_set = bubble (Piece.to_blocks piece) in
   { game with
     current_piece = None;
@@ -285,6 +285,9 @@ let level game =
 let current_piece game =
   game.current_piece
 
+let next_piece game = 
+  game.next_piece
+
 (** [blocks game] is a list of the blocks in the board  *)
 let blocks game =
   game.blocks
@@ -297,21 +300,21 @@ let init dimensions standard =
   let spawn = w / 2, h - 1 in
   let spawn_piece = (Piece.create spawn (Randompiece.random_piece ())) in
   {
-  blocks = [];
-  grid_width = w;
-  grid_height = h;
-  current_piece = None;
-  next_piece = spawn_piece;
-  over = false;
-  time = 0.;
-  free_fall_iterations = 0;
-  input_buffer = 0.05;
-  points = 0;
-  rows_cleared = 0;
-  paused = false;
-  level = 1;
-  standard_rules = standard;
-}
+    blocks = [];
+    grid_width = w;
+    grid_height = h;
+    current_piece = None;
+    next_piece = spawn_piece;
+    over = false;
+    time = 0.;
+    free_fall_iterations = 0;
+    input_buffer = 0.05;
+    points = 0;
+    rows_cleared = 0;
+    paused = false;
+    level = 1;
+    standard_rules = standard;
+  }
 
 (** [process game] is the game after updating with player input and the time. *)
 let process game =
@@ -322,12 +325,12 @@ let process game =
   else
     match game.current_piece with
     | None -> begin
-      let game = spawn_piece game in
-      (* No active piece; spawn one *)
-      match game.current_piece with
-      | Some p -> game
-      | None -> { game with over = true } (* Can't spawn; game over *)
-    end
+        let game = spawn_piece game in
+        (* No active piece; spawn one *)
+        match game.current_piece with
+        | Some p -> game
+        | None -> { game with over = true } (* Can't spawn; game over *)
+      end
     (* Active piece exists, move it as normal with input/time *)
     | Some active_piece ->
       let command = Command.get_command game.time (block_speed game) in
@@ -353,6 +356,6 @@ let process game =
         else
           let game = move_piece game Down active_piece in
           {  game with
-            time = new_time;
-            free_fall_iterations = game.free_fall_iterations + 1
+             time = new_time;
+             free_fall_iterations = game.free_fall_iterations + 1
           }

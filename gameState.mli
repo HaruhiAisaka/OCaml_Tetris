@@ -4,7 +4,7 @@ open Piece
 
 (**
  * The game state represents the abstract state of the entire game.
- *)
+*)
 
 (**  The type of the Game State representation *)
 type t
@@ -39,6 +39,9 @@ val level : t -> int
 
 (** [current_piece state] is the current piece being dropped by the player *)
 val current_piece : t -> Piece.t option
+
+(** [next_piece state] is the next piece that will be dropped *)
+val next_piece : t -> Piece.t
 
 (** [blocks state] is a list of the blocks in the board  *)
 val blocks: t -> Block.t list
