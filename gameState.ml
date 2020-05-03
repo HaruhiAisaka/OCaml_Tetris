@@ -348,10 +348,6 @@ let process game =
         else
           move_piece game Down active_piece
       | Fall new_time ->
-        print_endline ("Lv. : " ^ (string_of_int game.level));
-        print_endline ("Points : " ^ (string_of_int game.points));
-        print_endline ("Lines Cleared : " ^ (string_of_int game.rows_cleared));
-        print_endline "---------------------";
         if landed game active_piece then
           commit_if_set game active_piece |> clean_rows |> update_level
         else
