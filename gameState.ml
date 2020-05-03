@@ -258,7 +258,7 @@ let spawn_piece game =
   let start_loc = (game.grid_width / 2, game.grid_height - 1) in
   let new_piece = Piece.create start_loc (Randompiece.random_piece ()) in
   let opt_piece = if
-    not (collision game game.next_piece) then Some new_piece
+    not (collision game game.next_piece) then Some game.next_piece
     else None in
   { game with current_piece = opt_piece; next_piece = new_piece }
 
@@ -285,7 +285,7 @@ let level game =
 let current_piece game =
   game.current_piece
 
-let next_piece game = 
+let next_piece game =
   game.next_piece
 
 (** [blocks game] is a list of the blocks in the board  *)
