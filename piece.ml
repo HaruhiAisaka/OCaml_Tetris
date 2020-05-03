@@ -1,6 +1,6 @@
 open Block
 open Graphics
-type piece_name = 
+type piece_name =
   | I of (int*int)
   | O
   | L
@@ -11,16 +11,16 @@ type piece_name =
 
 type t = (piece_name*Block.t list)
 
-type rotation = 
+type rotation =
   | Zero
   | One
-  | Two 
+  | Two
   | Three
 
 (* -----------------------Helper Functions for Create------------------------ *)
 
-let piece_color piece = match fst (piece:t) with
-  |I (x,y) -> red
+let type_color (p: piece_name) = match p with
+  |I _ -> red
   |O -> blue
   |L -> green
   |J -> yellow
@@ -28,11 +28,13 @@ let piece_color piece = match fst (piece:t) with
   |Z -> magenta
   |T -> cyan
 
+let piece_color piece = type_color (fst (piece:t))
+
 (**[create_I xy] is an I piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_I xy : Block.t list = 
+let create_I xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color I(0,0) in
+  let color = red in
   [Block.create (x,y) color;
    Block.create (x-1,y) color;
    Block.create (x-2,y) color;
@@ -40,9 +42,9 @@ let create_I xy : Block.t list =
 
 (**[create_O xy] is an O piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_O xy : Block.t list = 
+let create_O xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color O in
+  let color = blue in
   [Block.create (x,y) color;
    Block.create (x-1,y) color;
    Block.create (x,y-1) color;
@@ -50,9 +52,9 @@ let create_O xy : Block.t list =
 
 (**[create_L xy] is an L piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_L xy : Block.t list = 
+let create_L xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color L in
+  let color = green in
   [Block.create (x,y) color;
    Block.create (x+1,y) color;
    Block.create (x-1,y-1) color;
@@ -60,9 +62,9 @@ let create_L xy : Block.t list =
 
 (**[create_J xy] is an J piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_J xy : Block.t list = 
+let create_J xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color J in
+  let color = yellow in
   [Block.create (x,y) color;
    Block.create (x-1,y) color;
    Block.create (x+1,y-1) color;
@@ -70,9 +72,9 @@ let create_J xy : Block.t list =
 
 (**[create_S xy] is an S piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_S xy : Block.t list = 
+let create_S xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color S in
+  let color = black in
   [Block.create (x,y) color;
    Block.create (x,y-1) color;
    Block.create (x+1,y) color;
@@ -80,9 +82,9 @@ let create_S xy : Block.t list =
 
 (**[create_Z xy] is an Z piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_Z xy : Block.t list = 
+let create_Z xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color Z in
+  let color = magenta in
   [Block.create (x,y) color;
    Block.create (x-1,y) color;
    Block.create (x,y-1) color;
@@ -90,9 +92,9 @@ let create_Z xy : Block.t list =
 
 (**[create_T xy] is an T piece with the pivot at cordinate xy
    Requires: [xy] be a tuple of non-negative ints.*)
-let create_T xy : Block.t list = 
+let create_T xy : Block.t list =
   let (x,y) = xy in
-  let color = piece_color T in
+  let color = cyan in
   [Block.create (x,y) color;
    Block.create (x+1,y) color;
    Block.create (x-1,y) color;
@@ -169,20 +171,20 @@ let rotate_left piece =
   | O -> piece
   | I xy ->
     let origin = tuple_int_to_float xy in
-    let new_blocks = 
-      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+    let new_blocks =
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples
       |> List.map (tuple_rotation_90 true)
       |> List.map (tuple_arithmatic (+.) origin)
       |> List.map (tuple_float_to_block_cordinate)
-      |> List.map (fun xy -> Block.create xy (piece_color I(0,0))) in
+      |> List.map (fun xy -> Block.create xy (type_color piece_name)) in
     (I xy, new_blocks)
   | piece_name -> let origin = List.hd centered_tuples in
-    let new_blocks = 
-      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+    let new_blocks =
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples
       |> List.map (tuple_rotation_90 true)
       |> List.map (tuple_arithmatic (+.) origin)
       |> List.map (tuple_float_to_block_cordinate)
-      |> List.map (fun xy -> Block.create xy (piece_color piece_name)) in
+      |> List.map (fun xy -> Block.create xy (type_color piece_name)) in
     (piece_name, new_blocks)
 
 let rotate_right piece =
@@ -195,20 +197,20 @@ let rotate_right piece =
   | O -> piece
   | I xy ->
     let origin = tuple_int_to_float xy  in
-    let new_blocks = 
-      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+    let new_blocks =
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples
       |> List.map (tuple_rotation_90 false)
       |> List.map (tuple_arithmatic (+.) origin)
       |> List.map (tuple_float_to_block_cordinate)
-      |> List.map (fun xy -> Block.create xy (piece_color I(0,0))) in
+      |> List.map (fun xy -> Block.create xy (type_color piece_name)) in
     (I xy, new_blocks)
   | piece_name -> let origin = List.hd centered_tuples in
-    let new_blocks = 
-      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples 
+    let new_blocks =
+      List.map (fun x -> tuple_arithmatic (-.) x origin) centered_tuples
       |> List.map (tuple_rotation_90 false)
       |> List.map (tuple_arithmatic (+.) origin)
       |> List.map (tuple_float_to_block_cordinate)
-      |> List.map (fun xy -> Block.create xy (piece_color piece_name)) in
+      |> List.map (fun xy -> Block.create xy (type_color piece_name)) in
     (piece_name, new_blocks)
 
 

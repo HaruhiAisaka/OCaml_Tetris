@@ -16,7 +16,7 @@ the x axis and y axis. The int's can not be negative.*)
 type t
 
 (** The different colors of blocks.*)
-type color
+type color = Graphics.color
 
 (** [create xy color] is the initial state of the block given two int cordinates.
   Requires: [xy] be a tuple of non-negative ints.*)
