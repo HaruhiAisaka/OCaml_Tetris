@@ -1,3 +1,5 @@
+open Graphics
+
 type t = ((int*int),color)
 
 type color = Graphics.color

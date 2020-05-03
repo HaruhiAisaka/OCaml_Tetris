@@ -1,3 +1,4 @@
+open Graphics
 (**
   Representation of a block in tetris.
 
