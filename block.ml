@@ -1,13 +1,25 @@
-type t = (int*int)
+type t = ((int*int),color)
 
-let create xy = xy
+type color = Graphics.color
 
-let left block = create ((fst(block)-1),(snd(block)))
+let create xy color = (xy, color)
 
-let right block = create ((fst(block)+1),(snd(block)))
+let left block = 
+  let cordinate = fst block in 
+  create (((fst(cordinate)-1),(snd(cordinate))), snd block)
 
-let down block = create ((fst(block)),(snd(block)-1))
+let right block = 
+  let cordinate = fst block in 
+  create (((fst(cordinate)+1),(snd(cordinate))), snd block)
 
-let up block = create ((fst(block)),(snd(block)+1))
+let down block = 
+  let cordinate = fst block in 
+  create (((fst(cordinate)),(snd(cordinate)-1)), snd block)
 
-let to_tuple block = block
+let up block = 
+  let cordinate = fst block in 
+  create (((fst(cordinate)),(snd(cordinate)+1)), snd block)
+
+let to_tuple block = fst block
+
+let color block = snd block

@@ -9,14 +9,17 @@
   in tetris, in terms of color.
 *)
 
-(**The absstraction type of values representing a block in tetris.
+(**The abstraction type of values representing a block in tetris.
 The type is represented as a single tuple containing two int's representing
 the x axis and y axis. The int's can not be negative.*)
 type t
 
-(** [create xy] is the initial state of the block given two int cordinates.
+(** The different colors of blocks.*)
+type color
+
+(** [create xy color] is the initial state of the block given two int cordinates.
   Requires: [xy] be a tuple of non-negative ints.*)
-val create : (int*int)-> t
+val create : (int*int) -> color -> t
 
 (** [left block] is the block moved one square to the left. *)
 val left : t -> t
@@ -33,3 +36,6 @@ val up : t -> t
 (**[to_tuple block] is the cordinates of the block
 represented as a list of tuples*)
 val to_tuple : t -> (int*int)
+
+(**[color block] is the color of the block*)
+val color : t -> color
