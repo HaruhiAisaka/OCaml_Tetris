@@ -200,7 +200,7 @@ let rotate_right piece =
       |> List.map (tuple_rotation_90 false)
       |> List.map (tuple_arithmatic (+.) origin)
       |> List.map (tuple_float_to_block_cordinate)
-      |> List.map (Block.create) in
+      |> List.map (fun xy -> Block.create xy (piece_color I(0,0))) in
     (I xy, new_blocks)
   | piece_name -> let origin = List.hd centered_tuples in
     let new_blocks = 
@@ -208,7 +208,7 @@ let rotate_right piece =
       |> List.map (tuple_rotation_90 false)
       |> List.map (tuple_arithmatic (+.) origin)
       |> List.map (tuple_float_to_block_cordinate)
-      |> List.map (Block.create) in
+      |> List.map (fun xy -> Block.create xy (piece_color piece_name)) in
     (piece_name, new_blocks)
 
 

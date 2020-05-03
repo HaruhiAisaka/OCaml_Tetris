@@ -232,7 +232,8 @@ let rotate_piece game direction piece =
 let instadrop game piece =
   let shift_blocks blocks by =
     List.map
-      (fun b -> let (x, y) = Block.to_tuple b in Block.create (x, y + by))
+      (fun b -> let (x, y) = Block.to_tuple b in 
+        Block.create (x, y + by) (Piece.piece_color piece))
       blocks
   in
   let rec bubble (blocks: Block.t list) =
