@@ -27,14 +27,14 @@ let clear_screen color =
   let width, height = screen_size in
   Graphics.fill_rect 0 0 width height
 
-(** [draw_block color block] draws [block] with the color: [color]*)
+(** [draw_block color block] draws [block] on the board*)
 let draw_block (block:Block.t)=
   let (x,y) = to_tuple block in
   set_color (Block.color block);
   Graphics.fill_rect (x*box_width) (y*box_width) box_width box_width
 
-(** [draw_piece color piece] draws [piece] with the color: [color]*)
-let draw_piece color (piece:Piece.t)=
+(** [draw_piec piece] draws [piece] on the board*)
+let draw_piece (piece:Piece.t)=
   match piece|>to_blocks with
   |blocks-> List.fold_left (fun unit block-> draw_block block) () blocks
 
@@ -42,7 +42,7 @@ let draw_piece color (piece:Piece.t)=
 (** Draws [piece] if it is not [None] *)
 let draw_piece_if_exist (piece: Piece.t option) =
   match piece  with
-  | Some p -> draw_piece (Piece.piece_color p) p
+  | Some p -> draw_piece  p
   | None -> ()
 
 (** Draws all blocks and pieces in [game] *)
@@ -50,19 +50,17 @@ let draw_game game =
   List.iter (fun b -> draw_block  b) (GameState.blocks game);
   draw_piece_if_exist (GameState.current_piece game)
 
-(** [draw_block color block] draws [block] with the color: [color]*)
-let draw_next_block color (block:Block.t)=
+(** [draw_block block] draws [block] in the information box*)
+let draw_next_block (block:Block.t)=
   let (x,y) = to_tuple block in
-  set_color color;
+  set_color (Block.color block);
   Graphics.fill_rect (400+ x*box_width/2) (250+y*box_width/2) (box_width/2) (box_width/2)
 
-(** [draw_next_piece game] Draws the next piece in the box outside of the play area*)
+(** [draw_next_piece game] Draws the next piece in the information box*)
 let draw_next_piece game=
   let piece = next_piece game in
-  let color = piece_color piece in
-
   match piece|>to_blocks with
-  |blocks-> List.iter (fun block-> draw_next_block color block) blocks
+  |blocks-> List.iter (fun block-> draw_next_block block) blocks
 
 
 (** [display_score game] prints the current score and level onto the screen*)

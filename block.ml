@@ -1,8 +1,9 @@
 open Graphics
 
+type color = Graphics.color
+
 type t = ((int*int)*color)
 
-type color = Graphics.color
 
 let create xy color = (xy, color)
 
