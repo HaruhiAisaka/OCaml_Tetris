@@ -3,6 +3,10 @@ open Command
 open Block
 open Piece
 
+type screen =
+  | Tetris
+  | Title
+
 type t = {
   (* About the grid *)
   grid_width: int;
@@ -24,6 +28,7 @@ type t = {
   standard_rules: bool;
   (* In non-standard tetris clearing lines doesn't give points and pressing down
    * insta-drops the piece *)
+  screen: screen;
 }
 
 
@@ -293,6 +298,9 @@ let next_piece game =
 let blocks game =
   game.blocks
 
+let screen game =
+    game.screen
+
 (** [init dimensions standard] creates a tetris game with a board of size
     [dimensions] and uses standard rules if [standard] is true or NES rules
     otherwise *)
@@ -315,10 +323,10 @@ let init dimensions standard =
     paused = false;
     level = 1;
     standard_rules = standard;
+    screen = Title;
   }
 
-(** [process game] is the game after updating with player input and the time. *)
-let process game =
+let tetris game =
   if game.over then (* Game over *)
     begin print_endline "game over"; game end
   else if game.paused then (* Pause *)
@@ -356,3 +364,10 @@ let process game =
              time = new_time;
              free_fall_iterations = game.free_fall_iterations + 1
           }
+
+
+(** [process game] is the game after updating with player input and the time. *)
+let process game =
+    match game.screen with
+    | Tetris -> tetris game
+    | Title -> game

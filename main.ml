@@ -89,8 +89,12 @@ let rec play tetris =
     let game = GameState.process tetris in
     begin
       clear_screen Graphics.white;
-      draw_game game;
-      display_info game;
+      if GameState.screen game = GameState.Tetris then begin
+        draw_game game;
+        display_info game
+      end
+      else
+        ();
       Graphics.synchronize ();
 
       play game

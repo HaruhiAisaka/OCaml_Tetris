@@ -9,9 +9,12 @@ open Piece
 (**  The type of the Game State representation *)
 type t
 
+type screen =
+  | Tetris
+  | Title
+
 (** The initialized game state *)
 val init : int * int -> bool -> t
-
 
 (* ---- Processing ----- *)
 
@@ -45,4 +48,6 @@ val next_piece : t -> Piece.t
 
 (** [blocks state] is a list of the blocks in the board  *)
 val blocks: t -> Block.t list
+
+val screen: t -> screen
 
