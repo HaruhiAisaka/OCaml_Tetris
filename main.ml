@@ -95,21 +95,33 @@ let high_scores () =
   set_color red;
   moveto 280 600; draw_string "TODO"
 
-let tetris = GameState.init (10, 20) false
+
+let display_game_over () = 
+  set_color black; fill_rect 60 555 310 50;
+  set_color white; fill_rect 65 560 300 40;
+  set_color black;
+  moveto 75 575; draw_string "Game Over! Press any Key to Return to the Menu"
+
+let tetris_init = GameState.init (10, 20) false
 
 (** [play tetris] is the render loop of the game *)
 let rec play tetris =
+  if GameState.game_over tetris then let _ = display_game_over() in 
+    let _= synchronize() in
+    let _ = wait_for_key () in 
+    play tetris_init else
+
     let game = GameState.process tetris in
     begin
       clear_screen Graphics.white;
 
       let _ = match GameState.screen game with
-      | Tetris -> begin
-        draw_game game;
-        display_info game;
-      end
-      | Title -> display_title ();
-      | HighScores -> high_scores ();
+        | Tetris -> begin
+            draw_game game;
+            display_info game;
+          end
+        | Title -> display_title ();
+        | HighScores -> high_scores ();
       in
 
       Graphics.synchronize ();
@@ -118,4 +130,4 @@ let rec play tetris =
     end
 
 
-let _ = play tetris
+let _ = play tetris_init

@@ -7,7 +7,7 @@ type command=
   |Rotate_Right
   |Rotate_Left
   |None
-(* Menu *)
+  (* Menu *)
   |One
   |Two
   |Three
@@ -24,3 +24,5 @@ type command=
    forced drop occured. [time_between_drops] is the number of seconds between
    each forced drop.*)
 val get_command : float -> float -> command
+
+val wait_for_key: unit -> unit

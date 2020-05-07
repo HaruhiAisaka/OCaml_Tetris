@@ -8,7 +8,7 @@ type command=
   | Rotate_Right
   | Rotate_Left
   | None
-(* Menu *)
+  (* Menu *)
   |One
   |Two
   |Three
@@ -19,6 +19,9 @@ type command=
   |Eight
   |Nine
   |Ten
+
+let wait_for_key () = 
+  match wait_next_event[Key_pressed] with _ -> ()
 
 
 let get_command last_drop time_between_drops =
@@ -31,7 +34,7 @@ let get_command last_drop time_between_drops =
       |'d'-> Right
       |'q'-> Rotate_Left
       |'e'-> Rotate_Right
-        (* Menu *)
+      (* Menu *)
       | '0' -> One
       | '1' -> Two
       | '2' -> Three
