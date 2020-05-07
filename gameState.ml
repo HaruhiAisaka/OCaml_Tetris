@@ -4,8 +4,10 @@ open Block
 open Piece
 
 (** What sceen the gamestate is showing *)
-type screen = | Tetris
+type screen =
+  | Tetris
   | Title
+  | HighScores
 
 type t = {
   (* About the grid *)
@@ -91,7 +93,7 @@ let block_speed game =
  * block speed accordingly. *)
 let update_level game =
   { game with
-    level = calculate_level game;
+    level = max (calculate_level game) game.level;
   }
 
 
@@ -187,7 +189,7 @@ let clean_rows game =
     else game.points + points_for_line lines_cleared
   in
   { game with
-    level = calculate_level game;
+    level = max (calculate_level game) game.level;
     blocks = new_blocks;
     rows_cleared = game.rows_cleared + lines_cleared;
     points = new_points
@@ -237,7 +239,7 @@ let rotate_piece game direction piece =
 let instadrop game piece =
   let shift_blocks blocks by =
     List.map
-      (fun b -> let (x, y) = Block.to_tuple b in 
+      (fun b -> let (x, y) = Block.to_tuple b in
         Block.create (x, y + by) (Piece.piece_color piece))
       blocks
   in
@@ -328,7 +330,7 @@ let init dimensions standard =
 
 let tetris game =
   if game.over then (* Game over *)
-    begin print_endline "game over"; game end
+    Stdlib.exit 0
   else
     match game.current_piece with
     | None -> begin
@@ -361,13 +363,33 @@ let tetris game =
              time = new_time;
              free_fall_iterations = game.free_fall_iterations + 1
           }
+      | _ -> game
+
+
 
 (** Keypress logic for main screen. [main_menu game] is the screen after
     handling player's keypresses. *)
 let main_menu game =
   match Command.get_command (Unix.gettimeofday ()) 100.0 with
-  | Down ->  { game with screen = Tetris }
+  | Down ->  { game with standard_rules = false; screen = Tetris }
   | Right -> { game with standard_rules = true; screen = Tetris }
+  | Rotate_Left -> { game with screen = HighScores }
+  | Left -> Stdlib.exit 0
+  (* Levels *)
+  | One  -> { game with level = 1; screen = Tetris }
+  | Two  -> { game with level = 2; screen = Tetris }
+  | Three -> { game with level = 3; screen = Tetris }
+  | Four -> { game with level = 4; screen = Tetris }
+  | Five -> { game with level = 5; screen = Tetris }
+  | Six  -> { game with level = 6; screen = Tetris }
+  | Seven -> { game with level = 7; screen = Tetris }
+  | Eight -> { game with level = 8; screen = Tetris }
+  | Nine -> { game with level = 9; screen = Tetris }
+  | Ten  -> { game with level = 10; screen = Tetris }
+  | _ -> game
+
+let high_scores game =
+  match Command.get_command (Unix.gettimeofday ()) 100.0 with
   | _ -> game
 
 (** [process game] is the game after updating with player input and the time. *)
@@ -375,3 +397,4 @@ let process game =
     match game.screen with
     | Tetris -> tetris game
     | Title -> main_menu game
+    | HighScores -> high_scores game

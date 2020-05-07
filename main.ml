@@ -80,28 +80,37 @@ let display_info game =
   draw_next_piece game;
   display_score game
 
+(** [display_title ()] displays the title screen *)
 let display_title () =
   set_color black;
   moveto 280 600; draw_string "Tetris";
   moveto 250 500; draw_string "CS 3110 Edition";
   moveto 240 450; draw_string "Press [ S ] to start";
-  moveto 190 420; draw_string "Press [ D ] to use standard ruleset"
+  moveto 190 420; draw_string "Press [ D ] to use standard ruleset";
+  moveto 190 400; draw_string "Press a number key to start at a level";
+  moveto 215 380; draw_string "Press [ Q ] to see highscores";
+  moveto 240 100; draw_string "Press [ A ] to quit"
+
+let high_scores () =
+  set_color red;
+  moveto 280 600; draw_string "TODO"
 
 let tetris = GameState.init (10, 20) false
 
 (** [play tetris] is the render loop of the game *)
 let rec play tetris =
-  if GameState.game_over tetris then print_endline "game over" else
-
     let game = GameState.process tetris in
     begin
       clear_screen Graphics.white;
-      if GameState.screen game = GameState.Tetris then begin
+
+      let _ = match GameState.screen game with
+      | Tetris -> begin
         draw_game game;
-        display_info game
+        display_info game;
       end
-      else
-        display_title ();
+      | Title -> display_title ();
+      | HighScores -> high_scores ();
+      in
 
       Graphics.synchronize ();
 

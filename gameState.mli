@@ -12,6 +12,7 @@ type t
 type screen =
   | Tetris
   | Title
+  | HighScores
 
 (** The initialized game state *)
 val init : int * int -> bool -> t
