@@ -3,7 +3,6 @@ type command=
   |Left
   |Right
   |Down
-  |Pause
   |Fall of float
   |Rotate_Right
   |Rotate_Left

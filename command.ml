@@ -4,7 +4,6 @@ type command=
   | Left
   | Right
   | Down
-  | Pause
   | Fall of float
   | Rotate_Right
   | Rotate_Left
@@ -19,7 +18,6 @@ let get_command last_drop time_between_drops =
       |'a'-> Left
       |'s'-> Down
       |'d'-> Right
-      |'0'-> Pause
       |'q'-> Rotate_Left
       |'e'-> Rotate_Right
       |_-> None

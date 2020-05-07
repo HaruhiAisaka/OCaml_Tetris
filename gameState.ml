@@ -3,8 +3,8 @@ open Command
 open Block
 open Piece
 
-type screen =
-  | Tetris
+(** What sceen the gamestate is showing *)
+type screen = | Tetris
   | Title
 
 type t = {
@@ -329,8 +329,6 @@ let init dimensions standard =
 let tetris game =
   if game.over then (* Game over *)
     begin print_endline "game over"; game end
-  else if game.paused then (* Pause *)
-    begin print_endline "paused"; game end
   else
     match game.current_piece with
     | None -> begin
@@ -344,7 +342,6 @@ let tetris game =
     | Some active_piece ->
       let command = Command.get_command game.time (block_speed game) in
       match command with
-      | Pause -> { game with paused = true }
       | None -> game
       | Rotate_Right -> rotate_piece game Rotate_Right active_piece
       | Rotate_Left -> rotate_piece game Rotate_Left active_piece
@@ -365,6 +362,8 @@ let tetris game =
              free_fall_iterations = game.free_fall_iterations + 1
           }
 
+(** Keypress logic for main screen. [main_menu game] is the screen after
+    handling player's keypresses. *)
 let main_menu game =
   match Command.get_command (Unix.gettimeofday ()) 100.0 with
   | Down ->  { game with screen = Tetris }
