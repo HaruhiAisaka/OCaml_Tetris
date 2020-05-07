@@ -365,9 +365,14 @@ let tetris game =
              free_fall_iterations = game.free_fall_iterations + 1
           }
 
+let main_menu game =
+  match Command.get_command (Unix.gettimeofday ()) 100.0 with
+  | Down ->  { game with screen = Tetris }
+  | Right -> { game with standard_rules = true; screen = Tetris }
+  | _ -> game
 
 (** [process game] is the game after updating with player input and the time. *)
 let process game =
     match game.screen with
     | Tetris -> tetris game
-    | Title -> game
+    | Title -> main_menu game

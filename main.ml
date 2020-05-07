@@ -80,6 +80,13 @@ let display_info game =
   draw_next_piece game;
   display_score game
 
+let display_title () =
+  set_color black;
+  moveto 280 600; draw_string "Tetris";
+  moveto 250 500; draw_string "CS 3110 Edition";
+  moveto 240 450; draw_string "Press [ S ] to start";
+  moveto 190 420; draw_string "Press [ D ] to use standard ruleset"
+
 let tetris = GameState.init (10, 20) false
 
 (** [play tetris] is the render loop of the game *)
@@ -94,7 +101,8 @@ let rec play tetris =
         display_info game
       end
       else
-        ();
+        display_title ();
+
       Graphics.synchronize ();
 
       play game
