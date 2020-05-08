@@ -21,9 +21,7 @@ type piece_name =
   | Z
   | T
 
-(** The type [rotation] represents the rotation of the piece. 
-    Rotation is an int from 0 to 3 *)
-type rotation
+
 
 (**The asbtract type of values representing a piece.
    The first element is the piece name of the given piece. 

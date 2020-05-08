@@ -11,14 +11,11 @@ type piece_name =
 
 type t = (piece_name*Block.t list)
 
-type rotation =
-  | Zero
-  | One
-  | Two
-  | Three
 
 (* -----------------------Helper Functions for Create------------------------ *)
 
+(*[type_color p] is the color of the piece p
+ Requires: p be a valid piece*)
 let type_color (p: piece_name) = match p with
   |I _ -> red
   |O -> blue
@@ -104,26 +101,39 @@ let create_T xy : Block.t list =
 
 (* ------------------Helper Functions for Rotate --------------------------- *)
 
+(*[tuple_int_to_float tuple] converts a tuple of ints to a tuple of floats.*)
 let tuple_int_to_float (tuple:(int*int)) : (float*float) =
   let (x,y) = tuple in
   ((float_of_int x),(float_of_int y))
 
+(*[tuple_float_to_block_cordinate tuple] 
+  converts a tuple of floats to a tuple of ints which represent the 
+  block cordinate which the tuple of floats resides in.
+  For example, a tuple (.5,.5) -> (0,0) since (.5,.5) 
+  is in the square cordinate (0,0)*)
 let tuple_float_to_block_cordinate (tuple:(float*float)) : (int*int) =
   let (x,y) = tuple in
   let new_x = if (x<0.) then x -. 1.0 else x in
   let new_y = if (y<0.) then y -. 1.0 else y in
   (int_of_float new_x, int_of_float new_y)
 
+(*[tuple_arithmatic f tuple1 tuple 2] is the result of a arithmatic operation 
+f aplied to the elements of tuple 1 and 2. 
+Ex: (x1,x2) + (y1,y2) = (x1+y1,x2+y2)*)
 let tuple_arithmatic f (tuple1:('a*'a)) (tuple2:('a*'a)) : ('a*'a) =
   let (x1,y1) = tuple1 in
   let (x2,y2) = tuple2 in
   ((f x1 x2), (f y1 y2))
 
+(*[tuple_rotation left tuple] is the cordinate of the tuple if it was 
+rotated 90 degrees to the left or right.*)
 let tuple_rotation_90 (left:bool) (tuple:(float*float)) : (float*float)  =
   let (x,y) = tuple in
   if (left) then (-.y,x)
   else (y,-.x)
 
+(*[piece_list_of_tuples piece] is the list of float tuples 
+representing the center point of each block that makes up a piece*)
 let piece_list_of_tuples (piece:t) : (float*float) list =
   let (piece_name,blocks) = piece in
   List.map (Block.to_tuple) blocks

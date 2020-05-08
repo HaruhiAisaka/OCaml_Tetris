@@ -35,6 +35,7 @@ let test_block_down
       assert_equal (expected) (Block.create xy Graphics.red |> Block.down |> Block.to_tuple)
     )
 
+(*Piece Test Functions*)
 let test_piece_create
     (name: string)
     (xy: (int*int))
