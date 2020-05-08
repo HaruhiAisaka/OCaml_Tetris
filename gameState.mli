@@ -60,3 +60,6 @@ val high_scores: t -> Highscores.t
 
 (** [high_score_str game] is the text typed by player for new high score name *)
 val high_score_str : t -> string
+
+(** [max_high_score_str_len] is the max length of high score name *)
+val max_high_score_str_len : int

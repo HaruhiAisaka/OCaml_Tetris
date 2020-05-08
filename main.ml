@@ -110,16 +110,30 @@ let high_scores game =
 
     (* Draw string with info *)
     let row_str =
-      let spacer = "        " in
+      (* create spacing of length n *)
+      let spacer size str =
+        let rec helper size str acc cur =
+          if cur < size then helper size str (str ^ acc) (cur + 1) else acc
+        in helper size str "" 0
+      in
+      (* Layout text -- *)
+      (* Name spacing *)
+      let normal_spacing = spacer 6 " " in
+      let name_spacer =
+        (spacer
+          ((GameState.max_high_score_str_len) - String.length score.name) " ")
+          ^ normal_spacing in
+      (* Construct string *)
       let str = string_of_int in
       score.name ^
-      spacer ^
+      name_spacer ^
       (str score.points) ^
-      spacer ^
+      normal_spacing ^
       (str score.level) ^
-      spacer ^
+      normal_spacing ^
       (str score.line_cleared)
     in
+    (* Draw it *)
     draw_string row_str
   done
 

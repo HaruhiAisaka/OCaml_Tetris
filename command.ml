@@ -60,7 +60,7 @@ let read_letters str =
   | '' (* Ctrl-N *)
     -> (str, false)
   (* Backspace *)
-  | '' | '' (* Backspace and Delete ? *) ->
+  | '' | '' | '\b' (* Backspace and Delete ? *) ->
     let str = match String.length str with
     | 0 -> str
     | n -> String.sub str 0 (n - 1)

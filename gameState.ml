@@ -43,6 +43,8 @@ type t = {
   high_score_str: string (* String player types in new high score screen *)
 }
 
+(* Max length for names in highscores *)
+let max_high_score_name_length = 15
 
 
 (* ------ Helper Funcs ----- *)
@@ -322,6 +324,10 @@ let high_scores game =
 let high_score_str game =
   game.high_score_str
 
+  (** [max_high_score_str_len] is [max_high_score_name_length] *)
+let max_high_score_str_len =
+  max_high_score_name_length
+
 (** [init dimensions standard] creates a tetris game with a board of size
     [dimensions] and uses standard rules if [standard] is true or NES rules
     otherwise *)
@@ -427,12 +433,22 @@ let new_high_score game =
   let str, finished = Command.read_letters game.high_score_str in
   if finished
   then
+    (* Write new high score *)
     let new_score = Highscores.make_score str game.points game.level
         game.rows_cleared game.standard_rules in
     let new_hs = Highscores.add  new_score game.high_scores in
     Highscores.write_scores new_hs;
+    (* Change screen and reset game *)
     { (reset game) with screen = HighScores; }
-  else { game with high_score_str = String.escaped str }
+  else
+    (* Keep getting input *)
+    (* Keep Highscore names length less than [max_high_score_name_length] *)
+    let new_str = String.escaped str in
+    let new_str = if String.length new_str <= max_high_score_name_length
+      then new_str
+      else game.high_score_str
+    in
+    { game with high_score_str = new_str }
 
 
 (** [process game] is the game after updating with player input and the time. *)
