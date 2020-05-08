@@ -95,14 +95,14 @@ let display_title () =
 (* Draws the high score screen *)
 let high_scores game =
   set_color black;
-  moveto 280 600; draw_string "High Scores";
-  moveto 170 540; draw_string "(name)    (score)    (level)    (lines cleared)";
+  moveto 240 600; draw_string "High Scores";
+  moveto 160 540; draw_string "(name)    (score)    (level)    (lines cleared)";
   let scores = GameState.high_scores game |> Highscores.scores in
   for i = 0 to (List.length scores - 1) do
     let y = 500 - (i * 30) in
     let score = List.nth scores i in
 
-    moveto 200 y;
+    moveto 160 y;
     (* Color based on ruleset *)
     if score.standard
       then set_color magenta
@@ -126,10 +126,10 @@ let high_scores game =
 (** [display_enter_high_score_screen] draws the new high score screen *)
 let display_enter_high_score_screen game =
   set_color black;
-  moveto 280 600; draw_string "New High Score!";
+  moveto 230 600; draw_string "New High Score!";
   moveto 180 500; draw_string "Enter your name here. Press space when finished";
   set_color magenta;
-  moveto 250 400; draw_string (GameState.high_score_str game)
+  moveto 220 400; draw_string (GameState.high_score_str game)
 
 
 (** [display_game_over] draws the game over box *)
