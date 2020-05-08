@@ -9,6 +9,7 @@ type screen =
   | Tetris
   | Title
   | HighScores
+  | NewHighScore
 
 type t = {
   (* About the grid *)
@@ -38,7 +39,8 @@ type t = {
   (* Menus *)
   screen: screen;
   (* High Scores *)
-  high_scores: Highscores.t
+  high_scores: Highscores.t;
+  high_score_str: string (* String player types in new high score screen *)
 }
 
 
@@ -316,6 +318,9 @@ let screen game =
 let high_scores game =
   game.high_scores
 
+(** [high_score_str game] is the [high_score_str] in game record *)
+let high_score_str game =
+  game.high_score_str
 
 (** [init dimensions standard] creates a tetris game with a board of size
     [dimensions] and uses standard rules if [standard] is true or NES rules
@@ -341,11 +346,19 @@ let init dimensions standard =
     standard_rules = standard;
     screen = Title;
     high_scores = Highscores.read_scores ();
+    high_score_str = "";
   }
+
+(** [reset game] is a reset version of the game state, retaining board size and
+    ruleset. *)
+let reset game = init (game.grid_width, game.grid_height) game.standard_rules
 
 let tetris game =
   if game.over then (* Game over *)
-    Stdlib.exit 0
+    (* High scores or reset *)
+      match Highscores.is_new_high_score game.high_scores game.points with
+      | false -> { (reset game) with screen = Title; over = false }
+      | true -> { game with screen = NewHighScore; over = false }
   else
     match game.current_piece with
     | None -> begin
@@ -403,10 +416,24 @@ let main_menu game =
   | Ten  -> { game with level = 10; screen = Tetris }
   | _ -> game
 
+(** Keypress logic for high scores screen. [high_scores_screen game is the
+    screen after handling presses *)
 let high_scores_screen game =
   match Command.get_command (Unix.gettimeofday ()) 100.0 with
   | Down | Rotate_Left | Left -> { game with screen = Title }
   | _ -> game
+
+let new_high_score game =
+  let str, finished = Command.read_letters game.high_score_str in
+  if finished
+  then
+    let new_score = Highscores.make_score str game.points game.level
+        game.rows_cleared game.standard_rules in
+    let new_hs = Highscores.add  new_score game.high_scores in
+    Highscores.write_scores new_hs;
+    { (reset game) with screen = HighScores; }
+  else { game with high_score_str = str }
+
 
 (** [process game] is the game after updating with player input and the time. *)
 let process game =
@@ -414,3 +441,4 @@ let process game =
     | Tetris -> tetris game
     | Title -> main_menu game
     | HighScores -> high_scores_screen game
+    | NewHighScore -> new_high_score game

@@ -24,6 +24,10 @@ val add : score -> t -> t
 (** [scores table] is a list of [score]s for each entry in the table *)
 val scores : t -> score list
 
+(** [is_new_high_score score table] is true if [score] is greater than (note NOT
+    equal to) the lowest high score on the table. False otherwise *)
+val is_new_high_score : t -> int -> bool
+
 (** [make_score name points level line_cleared standard] is the [score]
     corresponding to the arguments *)
 val make_score : string -> int -> int -> int -> bool -> score

@@ -92,6 +92,7 @@ let display_title () =
   moveto 215 380; draw_string "Press [ Q ] to see highscores";
   moveto 240 100; draw_string "Press [ A ] to quit"
 
+(* Draws the high score screen *)
 let high_scores game =
   set_color black;
   moveto 280 600; draw_string "High Scores";
@@ -122,7 +123,15 @@ let high_scores game =
     draw_string row_str
   done
 
+(** [display_enter_high_score_screen] draws the new high score screen *)
+let display_enter_high_score_screen game =
+  set_color black;
+  moveto 280 600; draw_string "New High Score!";
+  moveto 200 500; draw_string "Enter your name here. Press enter when finished";
+  moveto 250 400; draw_string (GameState.high_score_str game)
 
+
+(** [display_game_over] draws the game over box *)
 let display_game_over () =
   set_color black; fill_rect 60 555 310 50;
   set_color white; fill_rect 65 560 300 40;
@@ -133,11 +142,13 @@ let tetris_init = GameState.init (10, 20) false
 
 (** [play tetris] is the render loop of the game *)
 let rec play tetris =
-  if GameState.game_over tetris then let _ = display_game_over() in
+  (* Game over *)
+  if GameState.game_over tetris then let _ = display_game_over () in
     let _= synchronize() in
     let _ = wait_for_key () in
-    play tetris_init else
+    play (GameState.process tetris) else
 
+    (* Regular Processing *)
     let game = GameState.process tetris in
     begin
       clear_screen Graphics.white;
@@ -149,6 +160,7 @@ let rec play tetris =
           end
         | Title -> display_title ();
         | HighScores -> high_scores game;
+        | NewHighScore -> display_enter_high_score_screen game;
       in
 
       Graphics.synchronize ();

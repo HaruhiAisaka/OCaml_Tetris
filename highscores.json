@@ -1,6 +1,13 @@
 {
   "table": [
     {
+      "name": "dad\r",
+      "points": 423,
+      "level": 1,
+      "line_cleared": 0,
+      "standard": true
+    },
+    {
       "name": "test",
       "points": 300,
       "level": 10,

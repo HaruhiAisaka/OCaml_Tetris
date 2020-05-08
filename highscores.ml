@@ -90,6 +90,13 @@ let add score table =
 let scores table =
   table
 
+(** [is_new_high_score table score] is true if the [score] is greater than the
+ * lowest score. *)
+let is_new_high_score table score =
+  match List.rev table with
+  | h :: _ -> h.points < score
+  | [] -> true
+
 (** [make_score name points level line_cleared standard] creates a score entry
     from the arguments *)
 let make_score name points level line_cleared standard =
@@ -100,4 +107,3 @@ let make_score name points level line_cleared standard =
   line_cleared = line_cleared;
   standard = standard;
 }
-

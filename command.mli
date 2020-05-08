@@ -26,3 +26,7 @@ type command=
 val get_command : float -> float -> command
 
 val wait_for_key: unit -> unit
+
+(** [read_key str] is a tuple with the typed key appended to [str] and a boolean
+    represneting whether the user is done typing or not. *)
+val read_letters : string -> string * bool

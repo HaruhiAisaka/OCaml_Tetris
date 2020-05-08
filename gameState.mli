@@ -14,6 +14,7 @@ type screen =
   | Tetris
   | Title
   | HighScores
+  | NewHighScore
 
 (** The initialized game state *)
 val init : int * int -> bool -> t
@@ -56,3 +57,6 @@ val screen: t -> screen
 
 (** [high_scores game] is the [Highscore.t] of the game *)
 val high_scores: t -> Highscores.t
+
+(** [high_score_str game] is the text typed by player for new high score name *)
+val high_score_str : t -> string

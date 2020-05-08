@@ -20,7 +20,7 @@ type command=
   |Nine
   |Ten
 
-let wait_for_key () = 
+let wait_for_key () =
   match wait_next_event[Key_pressed] with _ -> ()
 
 
@@ -45,6 +45,11 @@ let get_command last_drop time_between_drops =
       | '7' -> Eight
       | '8' -> Nine
       | '9' -> Ten
-      |_-> None
+      | _ -> None
     else None
   else Fall current
+
+let read_letters str =
+  match read_key () with
+  | ' ' -> (str, true) (* Enter : done typing *)
+  | c -> (str ^ (String.make 1 c), false)
