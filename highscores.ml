@@ -3,7 +3,6 @@ open Yojson.Basic
 open Yojson.Basic.Util
 
 
-let highscore_file = "highscores.json"
 
 type score = {
   name : string;
@@ -15,10 +14,24 @@ type score = {
 
 type t = score list
 
-(** Number of total names that can be stored at once *)
+(* Name of highscore file *)
+let highscore_file = "highscores.json"
+(* Number of total names that can be stored at once *)
 let num_high_scores = 10
+(* prepoluated list if file not found *)
+let default_scores =
+  let score = {
+    name = "AAA";
+    points = 100;
+    level  = 1;
+    line_cleared = 1;
+    standard = true
+  }
+  in
+  [ score; score; score; score; score; score; score; score; score; score; ]
 
-(** Converts the score list to json formatted string *)
+(** [scores_to_json t] is the converted score list to json formatted string
+    Validates that it is not malformed. *)
 let scores_to_json t =
   let str = string_of_int in
   let score_to_json score : string =
@@ -44,6 +57,12 @@ let scores_to_json t =
 |> Yojson.Basic.from_string
 |> Yojson.Basic.pretty_to_string (* Pretty print + verify valid json *)
 
+(** Writes the high score table to [highscore_file] *)
+let write_scores table =
+  let str = scores_to_json table in
+  let oc = open_out "highscores.json" in
+  Printf.fprintf oc "%s" str;
+  close_out oc
 
 (** Is the parsed high scores from the file name specified by
     [highscore_file] *)
@@ -62,15 +81,14 @@ let read_scores () =
     let j_list = to_assoc json |> List.assoc "table" |> to_list in
     List.map make_score (j_list)
   in
+  try
   make_table (Yojson.Basic.from_file highscore_file)
-
-
-(** Writes the high score table to [highscore_file] *)
-let write_scores table =
-  let str = scores_to_json table in
-  let oc = open_out "highscores.json" in
-  Printf.fprintf oc "%s" str;
-  close_out oc
+  with
+  | Sys_error str | Yojson.Json_error str ->
+    print_endline "Error in loading highscores:";
+    print_endline str;
+    print_endline "Using default score table";
+    default_scores |> write_scores; default_scores
 
 
 (** Adds a high score to the table, while keeping its size leq [num_high_scores]

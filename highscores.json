@@ -1,18 +1,74 @@
 {
   "table": [
     {
-      "name": "sample",
-      "points": 200,
-      "level": 2,
-      "line_cleared": 0,
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
       "standard": true
     },
     {
-      "name": "sample",
+      "name": "AAA",
       "points": 100,
       "level": 1,
-      "line_cleared": 7,
-      "standard": false
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
+    },
+    {
+      "name": "AAA",
+      "points": 100,
+      "level": 1,
+      "line_cleared": 1,
+      "standard": true
     }
   ]
 }
