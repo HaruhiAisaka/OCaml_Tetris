@@ -189,7 +189,7 @@ let piece_tests_L =
 
 let piece_tests_J =
   [
-    test_piece_create "create J piece" (0,0) (J)
+    test_piece_create "create J piece" (0,0) (J) 
       ([(0,0);(-1,0);(1,-1);(1,0)]);
     test_piece_left "move J to left" (Piece.create (0,0) (J))
       ([(-1,0);(-2,0);(0,-1);(0,0)]);
@@ -199,35 +199,34 @@ let piece_tests_J =
       ([(0,-1);(-1,-1);(1,-2);(1,-1)]);
 
     test_piece_rotate_right "rotate J 1 right" (Piece.create (0,0) (J))
-      ([(0,0);(0,1);(1,1);(0,-1)]);
-    test_piece_rotate_right "rotate J 2 right"
+      ([(0,0);(0,1);(-1,-1);(0,-1)]);
+    test_piece_rotate_right "rotate J 2 right" 
       (Piece.create (0,0) (J)|> Piece.rotate_right)
-      ([(0,0);(1,0);(1,-1);(-1,0)]);
-    test_piece_rotate_right "rotate J 3 right"
+      ([(0,0);(1,0);(-1,1);(-1,0)]);
+    test_piece_rotate_right "rotate J 3 right" 
       (Piece.create (0,0) (J)|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(0,-1);(-1,-1);(0,1)]);
-    test_piece_rotate_right "rotate J 4 right"
+      ([(0,0);(0,-1);(1,1);(0,1)]);
+    test_piece_rotate_right "rotate J 4 right" 
       (Piece.create (0,0) (J)
-       |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(-1,0);(-1,1);(1,0)]);
-
+      |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
+      ([(0,0);(-1,0);(1,-1);(1,0)]);
+  
     test_piece_rotate_left "rotate J 1 left" (Piece.create (0,0) (J))
-      ([(0,0);(0,-1);(-1,-1);(0,1)]);
-    test_piece_rotate_left "rotate J 2 left"
+      ([(0,0);(0,-1);(1,1);(0,1)]);
+    test_piece_rotate_left "rotate J 2 left" 
       (Piece.create (0,0) (J)|> Piece.rotate_left)
-      ([(0,0);(1,0);(1,-1);(-1,0)]);
-    test_piece_rotate_left "rotate J 3 left"
+      ([(0,0);(1,0);(-1,1);(-1,0)]);
+    test_piece_rotate_left "rotate J 3 left" 
       (Piece.create (0,0) (J)|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(0,1);(1,1);(0,-1)]);
-    test_piece_rotate_left "rotate J 4 left"
+      ([(0,0);(0,1);(-1,-1);(0,-1)]);
+    test_piece_rotate_left "rotate J 4 left" 
       (Piece.create (0,0) (J)
-       |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(-1,0);(-1,1);(1,0)]);
+      |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
+      ([(0,0);(-1,0);(1,-1);(1,0)]);
   ]
-
 let piece_tests_S =
   [
-    test_piece_create "create S piece" (0,0) (S)
+    test_piece_create "create S piece" (0,0) (S) 
       ([(0,0);(0,-1);(1,0);(-1,-1)]);
     test_piece_left "move S to left" (Piece.create (0,0) (S))
       ([(-1,0);(-1,-1);(0,0);(-2,-1)]);
@@ -237,35 +236,35 @@ let piece_tests_S =
       ([(0,-1);(0,-2);(1,-1);(-1,-2)]);
 
     test_piece_rotate_right "rotate S 1 right" (Piece.create (0,0) (S))
-      ([(0,0);(1,0);(1,-1);(0,1)]);
-    test_piece_rotate_right "rotate S 2 right"
+      ([(0,0);(-1,0);(0,-1);(-1,1)]);
+    test_piece_rotate_right "rotate S 2 right" 
       (Piece.create (0,0) (S)|> Piece.rotate_right)
-      ([(0,0);(0,-1);(-1,-1);(1,0)]);
-    test_piece_rotate_right "rotate S 3 right"
+      ([(0,0);(0,1);(-1,0);(1,1)]);
+    test_piece_rotate_right "rotate S 3 right" 
       (Piece.create (0,0) (S)|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(-1,0);(-1,1);(0,-1)]);
-    test_piece_rotate_right "rotate S 4 right"
+      ([(0,0);(1,0);(0,1);(1,-1)]);
+    test_piece_rotate_right "rotate S 4 right" 
       (Piece.create (0,0) (S)
-       |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(0,1);(1,1);(-1,0)]);
-
+      |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
+      ([(0,0);(0,-1);(1,0);(-1,-1)]);
+  
     test_piece_rotate_left "rotate S 1 left" (Piece.create (0,0) (S))
-      ([(0,0);(-1,0);(-1,1);(0,-1)]);
-    test_piece_rotate_left "rotate S 2 left"
+      ([(0,0);(1,0);(0,1);(1,-1)]);
+    test_piece_rotate_left "rotate S 2 left" 
       (Piece.create (0,0) (S)|> Piece.rotate_left)
-      ([(0,0);(0,-1);(-1,-1);(1,0)]);
-    test_piece_rotate_left "rotate S 3 left"
+      ([(0,0);(0,1);(-1,0);(1,1)]);
+    test_piece_rotate_left "rotate S 3 left" 
       (Piece.create (0,0) (S)|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(1,0);(1,-1);(0,1)]);
-    test_piece_rotate_left "rotate S 4 left"
+      ([(0,0);(-1,0);(0,-1);(-1,1)]);
+    test_piece_rotate_left "rotate S 4 left" 
       (Piece.create (0,0) (S)
-       |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(0,1);(1,1);(-1,0)]);
+      |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
+      ([(0,0);(0,-1);(1,0);(-1,-1)]);
   ]
 
 let piece_tests_Z =
   [
-    test_piece_create "create Z piece" (0,0) (Z)
+    test_piece_create "create Z piece" (0,0) (Z) 
       ([(0,0);(-1,0);(0,-1);(1,-1)]);
     test_piece_left "move Z to left" (Piece.create (0,0) (Z))
       ([(-1,0);(-2,0);(-1,-1);(0,-1)]);
@@ -275,35 +274,35 @@ let piece_tests_Z =
       ([(0,-1);(-1,-1);(0,-2);(1,-2)]);
 
     test_piece_rotate_right "rotate Z 1 right" (Piece.create (0,0) (Z))
-      ([(0,0);(1,0);(1,1);(0,-1)]);
-    test_piece_rotate_right "rotate Z 2 right"
+      ([(0,0);(0,1);(-1,0);(-1,-1)]);
+    test_piece_rotate_right "rotate Z 2 right" 
       (Piece.create (0,0) (Z)|> Piece.rotate_right)
-      ([(0,0);(0,-1);(1,-1);(-1,0)]);
-    test_piece_rotate_right "rotate Z 3 right"
+      ([(0,0);(1,0);(0,1);(-1,1)]);
+    test_piece_rotate_right "rotate Z 3 right" 
       (Piece.create (0,0) (Z)|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(-1,0);(-1,-1);(0,1)]);
-    test_piece_rotate_right "rotate Z 4 right"
+      ([(0,0);(0,-1);(1,0);(1,1)]);
+    test_piece_rotate_right "rotate Z 4 right" 
       (Piece.create (0,0) (Z)
-       |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(0,1);(-1,1);(1,0)]);
-
+      |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
+      ([(0,0);(-1,0);(0,-1);(1,-1)]);
+  
     test_piece_rotate_left "rotate Z 1 left" (Piece.create (0,0) (Z))
-      ([(0,0);(-1,0);(-1,-1);(0,1)]);
-    test_piece_rotate_left "rotate Z 2 left"
+      ([(0,0);(0,-1);(1,0);(1,1)]);
+    test_piece_rotate_left "rotate Z 2 left" 
       (Piece.create (0,0) (Z)|> Piece.rotate_left)
-      ([(0,0);(0,-1);(1,-1);(-1,0)]);
-    test_piece_rotate_left "rotate Z 3 left"
+      ([(0,0);(1,0);(0,1);(-1,1)]);
+    test_piece_rotate_left "rotate Z 3 left" 
       (Piece.create (0,0) (Z)|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(1,0);(1,1);(0,-1)]);
-    test_piece_rotate_left "rotate Z 4 left"
+      ([(0,0);(0,1);(-1,0);(-1,-1)]);
+    test_piece_rotate_left "rotate Z 4 left" 
       (Piece.create (0,0) (Z)
-       |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(0,1);(-1,1);(1,0)]);
+      |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
+      ([(0,0);(-1,0);(0,-1);(1,-1)]);
   ]
 
 let piece_tests_T =
   [
-    test_piece_create "create T piece" (0,0) (T)
+    test_piece_create "create T piece" (0,0) (T) 
       ([(0,0);(1,0);(-1,0);(0,-1)]);
     test_piece_left "move T to left" (Piece.create (0,0) (T))
       ([(-1,0);(0,0);(-2,0);(-1,-1)]);
@@ -313,30 +312,30 @@ let piece_tests_T =
       ([(0,-1);(1,-1);(-1,-1);(0,-2)]);
 
     test_piece_rotate_right "rotate T 1 right" (Piece.create (0,0) (T))
-      ([(0,0);(0,-1);(0,1);(1,0)]);
-    test_piece_rotate_right "rotate T 2 right"
+      ([(0,0);(0,-1);(0,1);(-1,0)]);
+    test_piece_rotate_right "rotate T 2 right" 
       (Piece.create (0,0) (T)|> Piece.rotate_right)
-      ([(0,0);(-1,0);(1,0);(0,-1)]);
-    test_piece_rotate_right "rotate T 3 right"
+      ([(0,0);(-1,0);(1,0);(0,1)]);
+    test_piece_rotate_right "rotate T 3 right" 
       (Piece.create (0,0) (T)|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(0,1);(0,-1);(-1,0)]);
-    test_piece_rotate_right "rotate T 4 right"
+      ([(0,0);(0,1);(0,-1);(1,0)]);
+    test_piece_rotate_right "rotate T 4 right" 
       (Piece.create (0,0) (T)
-       |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
-      ([(0,0);(1,0);(-1,0);(0,1)]);
-
+      |> Piece.rotate_right|> Piece.rotate_right|> Piece.rotate_right)
+      ([(0,0);(1,0);(-1,0);(0,-1)]);
+  
     test_piece_rotate_left "rotate T 1 left" (Piece.create (0,0) (T))
-      ([(0,0);(0,1);(0,-1);(-1,0)]);
-    test_piece_rotate_left "rotate T 2 left"
+      ([(0,0);(0,1);(0,-1);(1,0)]);
+    test_piece_rotate_left "rotate T 2 left" 
       (Piece.create (0,0) (T)|> Piece.rotate_left)
-      ([(0,0);(-1,0);(1,0);(0,-1)]);
-    test_piece_rotate_left "rotate T 3 left"
+      ([(0,0);(-1,0);(1,0);(0,1)]);
+    test_piece_rotate_left "rotate T 3 left" 
       (Piece.create (0,0) (T)|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(0,-1);(0,1);(1,0)]);
-    test_piece_rotate_left "rotate T 4 left"
+      ([(0,0);(0,-1);(0,1);(-1,0)]);
+    test_piece_rotate_left "rotate T 4 left" 
       (Piece.create (0,0) (T)
-       |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
-      ([(0,0);(1,0);(-1,0);(0,1)]);
+      |> Piece.rotate_left|> Piece.rotate_left|> Piece.rotate_left)
+      ([(0,0);(1,0);(-1,0);(0,-1)]);
   ]
 
 let suite =
