@@ -21,7 +21,7 @@ val write_scores : t -> unit
 (** [add scpre table] adds a high score to the high score table *)
 val add : score -> t -> t
 
-(** [export table] is a list of [score]s for each entry in the table *)
+(** [scores table] is a list of [score]s for each entry in the table *)
 val scores : t -> score list
 
 (** [make_score name points level line_cleared standard] is the [score]
