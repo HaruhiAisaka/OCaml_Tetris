@@ -1,3 +1,4 @@
+open Highscores
 open Random
 open Command
 open Block
@@ -13,10 +14,12 @@ type t = {
   (* About the grid *)
   grid_width: int;
   grid_height: int;
+
   (* About the pieces *)
   blocks: Block.t list; (* TODO Map *)
   current_piece: Piece.t option;
   next_piece: Piece.t;
+
   (* Game State *)
   time: float;
   input_buffer: float; (* Time between succesive butten inputs *)
@@ -26,11 +29,16 @@ type t = {
   rows_cleared: int;
   paused: bool;
   level: int;
+
   (* Settings *)
   standard_rules: bool;
   (* In non-standard tetris clearing lines doesn't give points and pressing down
-   * insta-drops the piece *)
+    insta-drops the piece *)
+
+  (* Menus *)
   screen: screen;
+  (* High Scores *)
+  high_scores: Highscores.t
 }
 
 
@@ -300,8 +308,14 @@ let next_piece game =
 let blocks game =
   game.blocks
 
+(** [screen game] is the screen of the game record *)
 let screen game =
     game.screen
+
+(** [high_scores game] is the [high_scores] of the game record *)
+let high_scores game =
+  game.high_scores
+
 
 (** [init dimensions standard] creates a tetris game with a board of size
     [dimensions] and uses standard rules if [standard] is true or NES rules
@@ -326,6 +340,7 @@ let init dimensions standard =
     level = 1;
     standard_rules = standard;
     screen = Title;
+    high_scores = Highscores.read_scores ();
   }
 
 let tetris game =
@@ -388,8 +403,9 @@ let main_menu game =
   | Ten  -> { game with level = 10; screen = Tetris }
   | _ -> game
 
-let high_scores game =
+let high_scores_screen game =
   match Command.get_command (Unix.gettimeofday ()) 100.0 with
+  | Down | Rotate_Left | Left -> { game with screen = Title }
   | _ -> game
 
 (** [process game] is the game after updating with player input and the time. *)
@@ -397,4 +413,4 @@ let process game =
     match game.screen with
     | Tetris -> tetris game
     | Title -> main_menu game
-    | HighScores -> high_scores game
+    | HighScores -> high_scores_screen game

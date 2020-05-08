@@ -1,3 +1,4 @@
+open Highscores
 open Block
 open Command
 open GameState
@@ -91,12 +92,12 @@ let display_title () =
   moveto 215 380; draw_string "Press [ Q ] to see highscores";
   moveto 240 100; draw_string "Press [ A ] to quit"
 
-let high_scores () =
+let high_scores game =
   set_color red;
   moveto 280 600; draw_string "TODO"
 
 
-let display_game_over () = 
+let display_game_over () =
   set_color black; fill_rect 60 555 310 50;
   set_color white; fill_rect 65 560 300 40;
   set_color black;
@@ -106,9 +107,9 @@ let tetris_init = GameState.init (10, 20) false
 
 (** [play tetris] is the render loop of the game *)
 let rec play tetris =
-  if GameState.game_over tetris then let _ = display_game_over() in 
+  if GameState.game_over tetris then let _ = display_game_over() in
     let _= synchronize() in
-    let _ = wait_for_key () in 
+    let _ = wait_for_key () in
     play tetris_init else
 
     let game = GameState.process tetris in

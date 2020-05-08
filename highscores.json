@@ -1,0 +1,18 @@
+{
+    "table": [
+        {
+            "name": "test",
+            "points": 100,
+            "level": 1,
+            "line_cleared": 1,
+            "standard": true
+        },
+        {
+            "name": "test",
+            "points": 300,
+            "level": 10,
+            "line_cleared": 5,
+            "standard": false
+        }
+    ]
+}

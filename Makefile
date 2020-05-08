@@ -1,4 +1,4 @@
-MODULES=main gameState command block piece randompiece
+MODULES=main highscores gameState command block piece randompiece 
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)

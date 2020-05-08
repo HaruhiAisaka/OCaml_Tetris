@@ -1,5 +1,6 @@
-open Command
 open Block
+open Command
+open Highscores
 open Piece
 
 (**
@@ -50,5 +51,8 @@ val next_piece : t -> Piece.t
 (** [blocks state] is a list of the blocks in the board  *)
 val blocks: t -> Block.t list
 
+(** [screen game] is the current screen of the game state *)
 val screen: t -> screen
 
+(** [high_scores game] is the [Highscore.t] of the game *)
+val high_scores: t -> Highscores.t

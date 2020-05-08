@@ -6,6 +6,7 @@
 #directory "_build";;
 
 #load "command.cmo";;
+#load "highscores.cmo";;
 #load "block.cmo";;
 #load "piece.cmo";;
 #load "randompiece.cmo";;
