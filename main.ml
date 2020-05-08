@@ -93,8 +93,34 @@ let display_title () =
   moveto 240 100; draw_string "Press [ A ] to quit"
 
 let high_scores game =
-  set_color red;
-  moveto 280 600; draw_string "TODO"
+  set_color black;
+  moveto 280 600; draw_string "High Scores";
+  moveto 170 540; draw_string "(name)    (score)    (level)    (lines cleared)";
+  let scores = GameState.high_scores game |> Highscores.scores in
+  for i = 0 to (List.length scores - 1) do
+    let y = 500 - (i * 30) in
+    let score = List.nth scores i in
+
+    moveto 200 y;
+    (* Color based on ruleset *)
+    if score.standard
+      then set_color magenta
+      else set_color red;
+
+    (* Draw string with info *)
+    let row_str =
+      let spacer = "        " in
+      let str = string_of_int in
+      score.name ^
+      spacer ^
+      (str score.points) ^
+      spacer ^
+      (str score.level) ^
+      spacer ^
+      (str score.line_cleared)
+    in
+    draw_string row_str
+  done
 
 
 let display_game_over () =
@@ -122,7 +148,7 @@ let rec play tetris =
             display_info game;
           end
         | Title -> display_title ();
-        | HighScores -> high_scores ();
+        | HighScores -> high_scores game;
       in
 
       Graphics.synchronize ();
