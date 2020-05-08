@@ -1,0 +1,1 @@
+(** Main handles the GUI of the game and menus. *)

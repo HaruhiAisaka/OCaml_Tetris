@@ -34,7 +34,7 @@ type t = {
   (* Settings *)
   standard_rules: bool;
   (* In non-standard tetris clearing lines doesn't give points and pressing down
-    insta-drops the piece *)
+     insta-drops the piece *)
 
   (* Menus *)
   screen: screen;
@@ -314,7 +314,7 @@ let blocks game =
 
 (** [screen game] is the screen of the game record *)
 let screen game =
-    game.screen
+  game.screen
 
 (** [high_scores game] is the [high_scores] of the game record *)
 let high_scores game =
@@ -324,7 +324,7 @@ let high_scores game =
 let high_score_str game =
   game.high_score_str
 
-  (** [max_high_score_str_len] is [max_high_score_name_length] *)
+(** [max_high_score_str_len] is [max_high_score_name_length] *)
 let max_high_score_str_len =
   max_high_score_name_length
 
@@ -362,9 +362,9 @@ let reset game = init (game.grid_width, game.grid_height) game.standard_rules
 let tetris game =
   if game.over then (* Game over *)
     (* High scores or reset *)
-      match Highscores.is_new_high_score game.high_scores game.points with
-      | false -> { (reset game) with screen = Title; over = false }
-      | true -> { game with screen = NewHighScore; over = false }
+    match Highscores.is_new_high_score game.high_scores game.points with
+    | false -> { (reset game) with screen = Title; over = false }
+    | true -> { game with screen = NewHighScore; over = false }
   else
     match game.current_piece with
     | None -> begin
@@ -423,8 +423,8 @@ let main_menu game =
   | Ten  -> { game with level = 10; screen = Tetris }
   | _ -> game
 
-(** Keypress logic for high scores screen. [high_scores_screen game is the
-    screen after handling presses *)
+(** Keypress logic for high scores screen. [high_scores_screen game] is the
+   * screen after handling presses *)
 let high_scores_screen game =
   match Command.get_command (Unix.gettimeofday ()) 100.0 with
   | Down | Rotate_Left | Left -> { game with screen = Title }
@@ -454,8 +454,8 @@ let new_high_score game =
 
 (** [process game] is the game after updating with player input and the time. *)
 let process game =
-    match game.screen with
-    | Tetris -> tetris game
-    | Title -> main_menu game
-    | HighScores -> high_scores_screen game
-    | NewHighScore -> new_high_score game
+  match game.screen with
+  | Tetris -> tetris game
+  | Title -> main_menu game
+  | HighScores -> high_scores_screen game
+  | NewHighScore -> new_high_score game

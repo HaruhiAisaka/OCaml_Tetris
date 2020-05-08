@@ -1,4 +1,4 @@
-(* Representation of highscores *)
+(** Representation of highscores *)
 
 (** A single score *)
 type score = {

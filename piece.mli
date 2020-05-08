@@ -1,14 +1,14 @@
+(**   Representation of a piece in tetris.
+
+      This module represents the state of a piece block in tetris. A piece is a
+      colection of 4 blocks where the blocks are adjacent to one of more blocks in
+      that same colection. Tetris has 7 pieces, all of which can be created using
+      this module.
+*)
+
 open Block
 open Graphics
 
-(**
-   Representation of a piece in tetris.
-
-   This module represents the state of a piece block in tetris. A piece is a
-   colection of 4 blocks where the blocks are adjacent to one of more blocks in
-   that same colection. Tetris has 7 pieces, all of which can be created using
-   this module.
-*)
 
 (** The type [piece_name] represents the names of all seven possible 
     tetris blocks.*)

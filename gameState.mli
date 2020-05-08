@@ -1,11 +1,12 @@
+(**
+ * The game state represents the abstract state of the entire game.
+*)
 open Block
 open Command
 open Highscores
 open Piece
 
-(**
- * The game state represents the abstract state of the entire game.
-*)
+
 
 (**  The type of the Game State representation *)
 type t

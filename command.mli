@@ -1,3 +1,4 @@
+(** Command provides functions that handle user input through the keyboard *)
 (** the type [command] represents the action that the game should take*)
 type command=
   |Left
