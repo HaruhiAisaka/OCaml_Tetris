@@ -25,10 +25,10 @@ let scores_to_json t =
     {|
       {
       "name": "|} ^ score.name ^ {|",
-      "points": "|} ^ str score.points ^ {|",
-      "level": "|} ^ str score.level ^ {|",
-      "line_cleared": "|} ^ str score.line_cleared ^ {|",
-      "standard": "|} ^ string_of_bool score.standard ^ {|"
+      "points": |} ^ str score.points ^ {|,
+      "level": |} ^ str score.level ^ {|,
+      "line_cleared": |} ^ str score.line_cleared ^ {|,
+      "standard": |} ^ string_of_bool score.standard ^ {|
       }
     |}
   in
