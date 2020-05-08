@@ -77,7 +77,7 @@ let write_scores table =
     and sorted *)
 let add score table =
   let added = score :: table in
-  let sorted = List.sort (fun a b -> a.points - b.points) added in
+  let sorted = List.sort (fun a b -> b.points - a.points) added in
   (* assuming its sorted greates to least *)
   let rec truncate lst i cur acc =
     if cur >= i then acc else match lst with
@@ -85,6 +85,7 @@ let add score table =
     | [] -> acc
   in
   truncate sorted num_high_scores 0 []
+  |> List.rev
 
 (** [scores tables] is a list of all scores stored in the table *)
 let scores table =

@@ -127,7 +127,8 @@ let high_scores game =
 let display_enter_high_score_screen game =
   set_color black;
   moveto 280 600; draw_string "New High Score!";
-  moveto 200 500; draw_string "Enter your name here. Press enter when finished";
+  moveto 180 500; draw_string "Enter your name here. Press space when finished";
+  set_color magenta;
   moveto 250 400; draw_string (GameState.high_score_str game)
 
 

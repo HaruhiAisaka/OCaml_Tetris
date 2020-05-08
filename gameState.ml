@@ -432,7 +432,7 @@ let new_high_score game =
     let new_hs = Highscores.add  new_score game.high_scores in
     Highscores.write_scores new_hs;
     { (reset game) with screen = HighScores; }
-  else { game with high_score_str = str }
+  else { game with high_score_str = String.escaped str }
 
 
 (** [process game] is the game after updating with player input and the time. *)

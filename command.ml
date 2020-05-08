@@ -49,7 +49,22 @@ let get_command last_drop time_between_drops =
     else None
   else Fall current
 
+(** [read_letters str] is str with the letter the player typed appended. Removes
+    some bad chars like quotes and end of files *)
 let read_letters str =
   match read_key () with
+  (* Remove the bad inputs (attempt to) *)
+  | '"'
+  | '' (* Ctrl-D *)
+  | '' (* Ctrl-R *)
+  | '' (* Ctrl-N *)
+    -> (str, false)
+  (* Backspace *)
+  | '' | '' (* Backspace and Delete ? *) ->
+    let str = match String.length str with
+    | 0 -> str
+    | n -> String.sub str 0 (n - 1)
+    in (str, false)
+  (* Usual inputs *)
   | ' ' -> (str, true) (* Enter : done typing *)
   | c -> (str ^ (String.make 1 c), false)
