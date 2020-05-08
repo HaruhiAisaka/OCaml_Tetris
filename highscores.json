@@ -1,74 +1,18 @@
 {
   "table": [
     {
-      "name": "wTETRIS",
-      "points": 1070,
+      "name": "sample",
+      "points": 200,
+      "level": 2,
+      "line_cleared": 0,
+      "standard": true
+    },
+    {
+      "name": "sample",
+      "points": 100,
       "level": 1,
       "line_cleared": 7,
       "standard": false
-    },
-    {
-      "name": "eaiou",
-      "points": 651,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "dddqqqqaz",
-      "points": 437,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "dawerkoiwn",
-      "points": 286,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "ll\boss",
-      "points": 263,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "daad\r",
-      "points": 262,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "daaady",
-      "points": 262,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "ssss\b\b\b\r\u0003",
-      "points": 261,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "d\byika;/",
-      "points": 238,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
-    },
-    {
-      "name": "s\rpleas",
-      "points": 238,
-      "level": 1,
-      "line_cleared": 0,
-      "standard": true
     }
   ]
 }
