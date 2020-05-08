@@ -378,6 +378,7 @@ let tetris game =
     | Some active_piece ->
       let command = Command.get_command game.time (block_speed game) in
       match command with
+      | Ten -> { (reset game) with screen = Title; over = false }
       | None -> game
       | Rotate_Right -> rotate_piece game Rotate_Right active_piece
       | Rotate_Left -> rotate_piece game Rotate_Left active_piece

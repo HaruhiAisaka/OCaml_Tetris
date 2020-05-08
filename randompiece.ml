@@ -10,3 +10,7 @@ let random_piece unit = match Random.int 7 with
   | 4 -> S
   | 5 -> Z
   | _ -> T
+
+let random_color unit =
+  let r () = Random.int 255 in
+  Graphics.rgb (r ()) (r ()) (r ())

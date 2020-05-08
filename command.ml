@@ -53,18 +53,20 @@ let get_command last_drop time_between_drops =
     some bad chars like quotes and end of files *)
 let read_letters str =
   match read_key () with
-  (* Remove the bad inputs (attempt to) *)
-  | '"'
-  | '' (* Ctrl-D *)
-  | '' (* Ctrl-R *)
-  | '' (* Ctrl-N *)
-    -> (str, false)
   (* Backspace *)
-  | '' | '' | '\b' (* Backspace and Delete ? *) ->
+  | '\b' (* Backspace and Delete ? *) ->
     let str = match String.length str with
     | 0 -> str
     | n -> String.sub str 0 (n - 1)
     in (str, false)
   (* Usual inputs *)
-  | ' ' -> (str, true) (* Enter : done typing *)
+  | '\r' -> (str, true) (* Enter : done typing *)
+
+  (* Bad characters *)
+  | c when int_of_char c < 32 -> (str, false)
+  | '"'
+  | ''
+    -> (str, false)
+
+  (* Normal *)
   | c -> (str ^ (String.make 1 c), false)

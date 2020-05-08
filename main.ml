@@ -83,9 +83,13 @@ let display_info game =
 
 (** [display_title ()] displays the title screen *)
 let display_title () =
+  let name_box_x = 270 in
+  let name_box_y = 595 in
+  set_color black; fill_rect (name_box_x) (name_box_y) 55 25;
+  set_color white; fill_rect (name_box_x + 5) (name_box_y + 5) 45 15;
   set_color black;
   moveto 280 600; draw_string "Tetris";
-  moveto 250 500; draw_string "CS 3110 Edition";
+  moveto 250 570; draw_string "CS 3110 Edition";
   moveto 240 450; draw_string "Press [ S ] to start";
   moveto 190 420; draw_string "Press [ D ] to use standard ruleset";
   moveto 190 400; draw_string "Press a number key to start at a level";
@@ -94,9 +98,23 @@ let display_title () =
 
 (* Draws the high score screen *)
 let high_scores game =
+  (* create spacing of length n *)
+  let spacer size str =
+    let rec helper size str acc cur =
+      if cur < size then helper size str (str ^ acc) (cur + 1) else acc
+    in helper size str "" 0
+  in
+  (* Name spacing *)
+  let normal_spacing = spacer 5 " " in
+  let header_name_sapcing = spacer (GameState.max_high_score_str_len - 6) " "
+  in
+
   set_color black;
   moveto 240 600; draw_string "High Scores";
-  moveto 160 540; draw_string "(name)    (score)    (level)    (lines cleared)";
+  moveto 160 540; draw_string
+  ("(name)" ^ header_name_sapcing ^ "   " ^
+  "(score) (level) (lines cleared)");
+  fill_rect 140 530 330 5;
   let scores = GameState.high_scores game |> Highscores.scores in
   for i = 0 to (List.length scores - 1) do
     let y = 500 - (i * 30) in
@@ -108,17 +126,8 @@ let high_scores game =
       then set_color magenta
       else set_color red;
 
-    (* Draw string with info *)
+    (* Layout text -- *)
     let row_str =
-      (* create spacing of length n *)
-      let spacer size str =
-        let rec helper size str acc cur =
-          if cur < size then helper size str (str ^ acc) (cur + 1) else acc
-        in helper size str "" 0
-      in
-      (* Layout text -- *)
-      (* Name spacing *)
-      let normal_spacing = spacer 6 " " in
       let name_spacer =
         (spacer
           ((GameState.max_high_score_str_len) - String.length score.name) " ")
@@ -140,10 +149,15 @@ let high_scores game =
 (** [display_enter_high_score_screen] draws the new high score screen *)
 let display_enter_high_score_screen game =
   set_color black;
-  moveto 230 600; draw_string "New High Score!";
-  moveto 130 500; draw_string "Enter your name here. Press space when finished";
+  moveto 240 600; draw_string "New High Score!";
+  moveto 160 500; draw_string
+    "Enter your name here. Press [ Enter ] when finished";
+  let name_box_x = 230 in
+  let name_box_y = 380 in
+  set_color (Randompiece.random_color ()); fill_rect (name_box_x) (name_box_y) 105 30;
+  set_color white; fill_rect (name_box_x + 5) (name_box_y + 5) 95 20;
   set_color magenta;
-  moveto 220 400; draw_string (GameState.high_score_str game)
+  moveto (name_box_x + 8) (name_box_y + 8); draw_string (GameState.high_score_str game)
 
 
 (** [display_game_over] draws the game over box *)
